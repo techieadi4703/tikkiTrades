@@ -23,15 +23,22 @@ export const signUpWithEmail = async ({ email, password, fullName, country, inve
 }
 
 export const signInWithEmail = async ({ email, password }: SignInFormData) => {
-    try {
-        const response = await auth.api.signInEmail({ body: { email, password } })
+  try {
+    const response = await auth.api.signInEmail({
+      body: { email, password },
+    });
 
-        return { success: true, data: response }
-    } catch (e) {
-        console.log('Sign in failed', e)
-        return { success: false, error: 'Sign in failed' }
-    }
-}
+    return { success: true, data: response };
+  } catch (e: any) {
+    const message =
+      e?.body?.message ||
+      e?.message ||
+      "Invalid email or password";
+
+    return { success: false, error: message };
+  }
+};
+
 
 export const signOut = async () => {
     try {
