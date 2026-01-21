@@ -59,16 +59,22 @@ export async function getWatchlist() {
 
 // Add stock
 export async function addToWatchlist(symbol: string, company: string) {
-  const session = await auth.api.getSession();
-  if (!session?.user?.email) throw new Error('Not authenticated');
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session?.user?.email) {
+    console.log("No session in addToWatchlist");
+    throw new Error("Not authenticated");
+  }
 
   try {
     const mongoose = await connectToDatabase();
     const db = mongoose.connection.db;
-    if (!db) throw new Error('MongoDB connection not found');
+    if (!db) throw new Error("MongoDB connection not found");
 
-    const user = await db.collection('user').findOne({ email: session.user.email });
-    if (!user) throw new Error('User not found');
+    const user = await db.collection("user").findOne({ email: session.user.email });
+    if (!user) throw new Error("User not found");
 
     const userId = user.id || String(user._id);
 
@@ -78,35 +84,70 @@ export async function addToWatchlist(symbol: string, company: string) {
       company,
     });
 
+    console.log("Added to watchlist:", symbol);
     return { success: true };
   } catch (e: any) {
-    if (e.code === 11000) {
-      return { success: false, message: 'Already in watchlist' };
-    }
-    console.error('addToWatchlist error:', e);
+    console.error("addToWatchlist error:", e);
     return { success: false };
   }
 }
 
+
 // Remove stock
 export async function removeFromWatchlist(symbol: string) {
-  const session = await auth.api.getSession();
-  if (!session?.user?.email) throw new Error('Not authenticated');
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session?.user?.email) {
+    console.log("No session in removeFromWatchlist");
+    throw new Error("Not authenticated");
+  }
 
   try {
     const mongoose = await connectToDatabase();
     const db = mongoose.connection.db;
-    if (!db) throw new Error('MongoDB connection not found');
+    if (!db) throw new Error("MongoDB connection not found");
 
-    const user = await db.collection('user').findOne({ email: session.user.email });
-    if (!user) throw new Error('User not found');
+    const user = await db.collection("user").findOne({ email: session.user.email });
+    if (!user) throw new Error("User not found");
 
     const userId = user.id || String(user._id);
 
     await Watchlist.deleteOne({ userId, symbol });
+    console.log("Removed from watchlist:", symbol);
+
     return { success: true };
   } catch (e) {
-    console.error('removeFromWatchlist error:', e);
+    console.error("removeFromWatchlist error:", e);
     return { success: false };
   }
+}
+
+
+// Check if stock is in watchlist
+export async function isInWatchlist(symbol: string) {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session?.user?.email) return false;
+
+  const mongoose = await connectToDatabase();
+  const db = mongoose.connection.db;
+  if (!db) throw new Error("DB not initialized");
+
+  const user = await db
+    .collection("user")
+    .findOne<{ _id?: unknown; id?: string }>({
+      email: session.user.email,
+    });
+
+  if (!user) return false;
+
+  const userId = user.id || String(user._id || "");
+  if (!userId) return false;
+
+  const item = await Watchlist.findOne({ userId, symbol });
+  return !!item;
 }
