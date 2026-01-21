@@ -1,13 +1,6 @@
-import { Schema, model, models, type Document, type Model } from 'mongoose';
+import { Schema, model, models, InferSchemaType } from "mongoose";
 
-export interface WatchlistItem extends Document {
-  userId: string;
-  symbol: string;
-  company: string;
-  addedAt: Date;
-}
-
-const WatchlistSchema = new Schema<WatchlistItem>(
+const watchlistSchema = new Schema(
   {
     userId: { type: String, required: true, index: true },
     symbol: { type: String, required: true, uppercase: true, trim: true },
@@ -18,7 +11,9 @@ const WatchlistSchema = new Schema<WatchlistItem>(
 );
 
 // Prevent duplicate symbols per user
-WatchlistSchema.index({ userId: 1, symbol: 1 }, { unique: true });
+watchlistSchema.index({ userId: 1, symbol: 1 }, { unique: true });
 
-export const Watchlist: Model<WatchlistItem> =
-  (models?.Watchlist as Model<WatchlistItem>) || model<WatchlistItem>('Watchlist', WatchlistSchema);
+export type WatchlistItem = InferSchemaType<typeof watchlistSchema>;
+
+export const Watchlist =
+  models?.Watchlist || model<WatchlistItem>("Watchlist", watchlistSchema);
