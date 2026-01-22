@@ -178,3 +178,15 @@ export const searchStocks = cache(async (query?: string): Promise<StockWithWatch
     return [];
   }
 });
+
+export async function getCompanyProfile(symbol: string) {
+  const token = process.env.FINNHUB_API_KEY ?? process.env.NEXT_PUBLIC_FINNHUB_API_KEY;
+  const url = `${FINNHUB_BASE_URL}/stock/profile2?symbol=${symbol}&token=${token}`;
+  return fetchJSON<any>(url, 3600);
+}
+
+export async function getQuote(symbol: string) {
+  const token = process.env.FINNHUB_API_KEY ?? process.env.NEXT_PUBLIC_FINNHUB_API_KEY;
+  const url = `https://finnhub.io/api/v1/quote?symbol=${symbol}&token=${token}`;
+  return fetchJSON<any>(url, 30);
+}
