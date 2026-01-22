@@ -8,9 +8,14 @@ import {
   COMPANY_PROFILE_WIDGET_CONFIG,
   COMPANY_FINANCIALS_WIDGET_CONFIG,
 } from "@/lib/constants";
-
+import { isInWatchlist } from "@/lib/actions/watchlist.actions";
+import { getCompanyProfile } from "@/lib/actions/finnhub.actions";
 export default async function StockDetails({ params }: StockDetailsPageProps) {
   const { symbol } = await params;
+  const upper = symbol.toUpperCase();
+  const alreadyInWatchlist = await isInWatchlist(upper);
+  const profile = await getCompanyProfile(upper);
+  const companyName = profile?.name || upper;
   const scriptUrl = `https://s3.tradingview.com/external-embedding/embed-widget-`;
 
   return (
@@ -41,9 +46,9 @@ export default async function StockDetails({ params }: StockDetailsPageProps) {
 
         {/* Right column */}
         <div className="flex flex-col gap-6">
-          {/* <div className="flex items-center justify-between">
-            <WatchlistButton symbol={symbol.toUpperCase()} company={symbol.toUpperCase()} isInWatchlist={false} />
-          </div> */}
+          <div className="flex items-center justify-between">
+            <WatchlistButton symbol={symbol.toUpperCase()} company={companyName} isInWatchlist={alreadyInWatchlist} />
+          </div>
 
           <TradingViewWidget
             scriptUrl={`${scriptUrl}technical-analysis.js`}
