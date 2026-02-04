@@ -30,7 +30,7 @@ const WatchlistButton = ({
   if (type === "icon") {
     return (
       <button
-        className={`watchlist-icon-btn ${added ? "watchlist-icon-added" : ""}`}
+        className={`watchlist-icon-btn m-1 ${added ? "watchlist-icon-added" : ""}`}
         onClick={handleClick}
       >
         ⭐
@@ -39,7 +39,7 @@ const WatchlistButton = ({
   }
 
   return (
-    <button className={`watchlist-btn ${added ? "watchlist-remove" : ""}`} onClick={handleClick}>
+    <button className={`watchlist-btn min-w-48 leading-tight ${added ? "watchlist-remove" : ""}`} onClick={handleClick}>
       {label}
     </button>
   );

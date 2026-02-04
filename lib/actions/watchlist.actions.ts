@@ -30,9 +30,9 @@ export async function getWatchlistSymbolsByEmail(email: string): Promise<string[
 }
 
 // Get full watchlist for logged in user
-export async function getWatchlist() {
+export async function getWatchlist(opts?: { headers?: Headers }) {
   const session = await auth.api.getSession({
-    headers: await headers(),
+    headers: opts?.headers ?? (await headers()),
   });
 
   if (!session?.user?.email) return [];

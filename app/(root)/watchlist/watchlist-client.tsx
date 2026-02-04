@@ -70,14 +70,14 @@ export default function WatchlistClient({
   };
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-semibold mb-6">My Watchlist</h1>
+    <div className="p-6 pt-0">
+      <h1 className="text-2xl font-semibold mb-2">My Watchlist</h1>
 
       <div className="rounded-xl border border-gray-700 overflow-hidden">
         <div
-          className="grid bg-gray-900 px-4 py-3 text-sm text-gray-300"
+          className="grid bg-gray-900 px-4 py-2 text-sm text-gray-300"
           style={{
-            gridTemplateColumns: "40px 1.5fr 1fr 1fr 1fr 1fr 1fr 1.5fr",
+            gridTemplateColumns: "40px 1.5fr 1fr 1fr 1fr 1fr  2fr",
           }}
         >
           <div>★</div>
@@ -86,7 +86,7 @@ export default function WatchlistClient({
           <SortHeader label="Price" k="price" />
           <SortHeader label="Change" k="change" />
           <SortHeader label="Change %" k="changePercent" />
-          <SortHeader label="Volume" k="volume" />
+          {/* <SortHeader label="Volume" k="volume" /> */}
           <div className="text-center">Action</div>
         </div>
 
@@ -95,9 +95,9 @@ export default function WatchlistClient({
           return (
             <div
               key={item._id}
-              className="grid items-center px-4 py-4 border-t border-gray-600"
+              className="grid items-center px-4 py-3 border-t border-gray-600"
               style={{
-                gridTemplateColumns: "40px 1.5fr 1fr 1fr 1fr 1fr 1fr 1.5fr",
+                gridTemplateColumns: "40px 1.5fr 1fr 1fr 1fr 1fr  2fr",
               }}
             >
               <div>⭐</div>
@@ -109,13 +109,13 @@ export default function WatchlistClient({
               </Link>
               <div>{item.symbol}</div>
               <div>${item.price.toFixed(2)}</div>
-              <div className={isUp ? "text-green-400" : "text-red-400"}>
+              <div className={ isUp ? "pl-3 text-green-400" : "pl-2 text-red-400"}>
                 {item.change.toFixed(2)}
               </div>
-              <div className={isUp ? "text-green-400" : "text-red-400"}>
+              <div className={ isUp ? "pl-3 text-green-400" : "pl-2 text-red-400"}>
                 {item.changePercent.toFixed(2)}%
               </div>
-              <div>{item.volume}</div>
+              {/* <div>{item.volume}</div> */}
               <div className="flex justify-end">
                 <WatchlistButton
                   symbol={item.symbol}
