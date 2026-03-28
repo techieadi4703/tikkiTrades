@@ -62,6 +62,7 @@ Animations:       Framer Motion (Orchestrated Staggers & Exits)
 Icons:            Lucide React
 State Management: React Hooks (useState, useEffect, useRef)
 Market Data:      TradingView Embedded Analytics
+Database:         MongoDB (Scalable NoSQL for User Profiles)
 Deployment:       Vercel Ready
 ```
 
