@@ -60,7 +60,7 @@ const WatchlistChatbot = ({ data }: { data: WatchlistItem[] }) => {
   };
 
   return (
-    <div className="flex flex-col h-[600px] bg-white/[0.02] backdrop-blur-xl border border-white/5 rounded-2xl overflow-hidden shadow-2xl">
+    <div className="flex flex-col h-full bg-white/[0.02] backdrop-blur-xl border border-white/5 rounded-2xl overflow-hidden shadow-2xl">
       <div className="p-6 border-b border-white/5 bg-white/[0.02]">
         <div className="flex items-center gap-3">
            <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">
@@ -173,11 +173,11 @@ export default function WatchlistClient({
   };
 
   return (
-    <div className="p-4 md:p-8 max-w-[1600px] mx-auto min-h-[calc(100vh-100px)]">
+    <div className="p-4 md:p-8 md:pt-0 max-w-[1600px] mx-auto h-[calc(100vh-70px)] overflow-hidden flex flex-col">
       <motion.div 
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="flex items-center justify-between mb-8"
+        className="flex-none mb-4"
       >
         <div>
           <h1 className="text-3xl font-bold text-white tracking-tight">My Watchlist</h1>
@@ -185,13 +185,13 @@ export default function WatchlistClient({
         </div>
       </motion.div>
 
-      <div className="flex flex-col gap-8 lg:flex-row items-start">
+      <div className="flex flex-1 flex-col gap-6 lg:flex-row items-stretch min-h-0 pb-6">
         {/* Main Table Container */}
         <motion.div 
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.1 }}
-          className="w-full lg:flex-1 bg-white/[0.02] backdrop-blur-xl border border-white/5 rounded-2xl overflow-hidden shadow-2xl"
+          className="flex-1 flex flex-col bg-white/[0.02] backdrop-blur-xl border border-white/5 rounded-2xl overflow-hidden shadow-2xl"
         >
           <div
             className="grid bg-white/[0.03] px-6 py-4 text-[11px] font-bold uppercase tracking-wider text-gray-500 border-b border-white/5"
@@ -206,10 +206,10 @@ export default function WatchlistClient({
             <SortHeader label="Change" k="change" />
             <SortHeader label="Change %" k="changePercent" />
             <SortHeader label="Volume" k="volume" />
-            <div className="text-right pr-4">Action</div>
+            <div className="text-center">Action</div>
           </div>
 
-          <div className="divide-y divide-white/5">
+          <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-white/10 divide-y divide-white/5">
             <AnimatePresence mode="popLayout" initial={false}>
               {data.map((item, idx) => {
                 const isUp = item.change >= 0;
@@ -251,8 +251,8 @@ export default function WatchlistClient({
 
                     <div className="text-gray-500 text-sm font-mono">{item.volume.toLocaleString()}</div>
 
-                    <div className="flex justify-end pr-2">
-                      <div className="scale-90 origin-right group-hover:scale-95 transition-transform">
+                    <div className="flex justify-center">
+                      <div className="scale-90 group-hover:scale-95 transition-transform flex justify-center w-full max-w-[140px]">
                         <WatchlistButton
                           symbol={item.symbol}
                           company={item.company}
@@ -275,12 +275,11 @@ export default function WatchlistClient({
           </div>
         </motion.div>
 
-        {/* Chatbot Sidebar */}
         <motion.div 
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.2 }}
-          className="w-full lg:w-[400px] lg:sticky lg:top-[100px]"
+          className="w-full lg:w-[400px] h-full"
         >
           <WatchlistChatbot data={data} />
         </motion.div>

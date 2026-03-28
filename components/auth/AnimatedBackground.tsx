@@ -39,7 +39,7 @@ const AnimatedBackground = () => {
       {/* Animated Grid with Pulsing Effect */}
       <motion.div 
         animate={{
-          opacity: [0.15, 0.25, 0.15],
+          opacity: [0.2, 0.45, 0.2],
         }}
         transition={{
           duration: 4,
@@ -49,12 +49,12 @@ const AnimatedBackground = () => {
         className="absolute inset-0"
         style={{
           backgroundImage: `
-            linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px), 
-            linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px)
+            linear-gradient(rgba(16, 185, 129, 0.12) 1px, transparent 1px), 
+            linear-gradient(90deg, rgba(16, 185, 129, 0.12) 1px, transparent 1px)
           `,
           backgroundSize: '40px 40px',
-          maskImage: 'radial-gradient(circle at center, black 40%, transparent 90%)',
-          WebkitMaskImage: 'radial-gradient(circle at center, black 40%, transparent 90%)'
+          maskImage: 'radial-gradient(circle at center, black 50%, transparent 95%)',
+          WebkitMaskImage: 'radial-gradient(circle at center, black 50%, transparent 95%)'
         }}
       />
 
