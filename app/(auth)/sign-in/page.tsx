@@ -1,5 +1,6 @@
 "use client";
 
+import { motion } from "framer-motion";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import InputField from "@/components/forms/InputField";
@@ -36,8 +37,16 @@ const SignIn = () => {
   };
 
   return (
-    <>
-      <h1 className="form-title">Welcome back</h1>
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="space-y-6"
+    >
+      <div>
+        <h1 className="text-3xl font-bold text-white mb-2">Welcome back</h1>
+        <p className="text-gray-400">Enter your credentials to access your account</p>
+      </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
         <InputField
@@ -48,7 +57,7 @@ const SignIn = () => {
           error={errors.email}
           validation={{
             required: "Email is required",
-            pattern:/^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+            pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
           }}
         />
 
@@ -65,9 +74,9 @@ const SignIn = () => {
         <Button
           type="submit"
           disabled={isSubmitting}
-          className="yellow-btn w-full mt-5"
+          className="bg-green-500 hover:bg-green-600 text-black font-bold h-12 w-full mt-2 transition-all active:scale-[0.98]"
         >
-          {isSubmitting ? "Signing In" : "Sign In"}
+          {isSubmitting ? "Signing In..." : "Sign In"}
         </Button>
 
         <FooterLink
@@ -76,7 +85,9 @@ const SignIn = () => {
           href="/sign-up"
         />
       </form>
-    </>
+    </motion.div>
   );
 };
+
 export default SignIn;
+

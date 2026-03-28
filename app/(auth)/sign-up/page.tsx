@@ -1,5 +1,6 @@
 "use client";
 
+import { motion } from "framer-motion";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import InputField from "@/components/forms/InputField";
@@ -20,17 +21,12 @@ const SignUp = () => {
   const {
     register,
     handleSubmit,
-    control,
     formState: { errors, isSubmitting },
   } = useForm<SignUpFormData>({
     defaultValues: {
       fullName: "",
       email: "",
       password: "",
-      country: "US",
-      investmentGoals: "Growth",
-      riskTolerance: "Medium",
-      preferredIndustry: "Technology",
     },
     mode: "onBlur",
   });
@@ -49,8 +45,16 @@ const SignUp = () => {
   };
 
   return (
-    <>
-      <h1 className="form-title">Sign Up & Personalize</h1>
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="space-y-6"
+    >
+      <div>
+        <h1 className="text-3xl font-bold text-white mb-2">Get Started</h1>
+        <p className="text-gray-400">Join TikkiTrades to start your investing journey</p>
+      </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
         <InputField
@@ -69,9 +73,8 @@ const SignUp = () => {
           register={register}
           error={errors.email}
           validation={{
-            required: "Email name is required",
+            required: "Email is required",
             pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-            message: "Email address is required",
           }}
         />
 
@@ -85,50 +88,12 @@ const SignUp = () => {
           validation={{ required: "Password is required", minLength: 8 }}
         />
 
-        <CountrySelectField
-          name="country"
-          label="Country"
-          control={control}
-          error={errors.country}
-          required
-        />
-
-        <SelectField
-          name="investmentGoals"
-          label="Investment Goals"
-          placeholder="Select your investment goal"
-          options={INVESTMENT_GOALS}
-          control={control}
-          error={errors.investmentGoals}
-          required
-        />
-
-        <SelectField
-          name="riskTolerance"
-          label="Risk Tolerance"
-          placeholder="Select your risk level"
-          options={RISK_TOLERANCE_OPTIONS}
-          control={control}
-          error={errors.riskTolerance}
-          required
-        />
-
-        <SelectField
-          name="preferredIndustry"
-          label="Preferred Industry"
-          placeholder="Select your preferred industry"
-          options={PREFERRED_INDUSTRIES}
-          control={control}
-          error={errors.preferredIndustry}
-          required
-        />
-
         <Button
           type="submit"
           disabled={isSubmitting}
-          className="yellow-btn w-full mt-5"
+          className="bg-green-500 hover:bg-green-600 text-black font-bold h-12 w-full mt-2 transition-all active:scale-[0.98]"
         >
-          {isSubmitting ? "Creating Account" : "Start Your Investing Journey"}
+          {isSubmitting ? "Creating Account..." : "Start Your Journey"}
         </Button>
 
         <FooterLink
@@ -137,7 +102,9 @@ const SignUp = () => {
           href="/sign-in"
         />
       </form>
-    </>
+    </motion.div>
   );
 };
+
 export default SignUp;
+
