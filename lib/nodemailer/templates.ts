@@ -94,17 +94,10 @@ export const WELCOME_EMAIL_TEMPLATE = `<!DOCTYPE html>
             <td align="center" class="mobile-outer-padding" style="padding: 40px 20px;">
                 <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" class="email-container" style="max-width: 600px; background-color: #141414; border-radius: 8px; border: 1px solid #30333A;">
                     
-                    <!-- Header with Logo -->
+                    <!-- Header with Branding -->
                     <tr>
-                        <td align="left" class="mobile-header-padding" style="padding: 40px 40px 20px 40px;">
-                            <img src="https://ik.imagekit.io/a6fkjou7d/logo.png?updatedAt=1756378431634" alt="Tikki Trades Logo" width="150" style="max-width: 100%; height: auto;">
-                        </td>
-                    </tr>
-                    
-                    <!-- Dashboard Preview Image -->
-                    <tr>
-                        <td align="center" class="dashboard-preview" style="padding: 40px 40px 0px 40px;">
-                            <img src="https://ik.imagekit.io/a6fkjou7d/dashboard-preview.png?updatedAt=1756378548102" alt="Tikki Trades Dashboard Preview" width="100%" style="max-width: 520px; width: 100%; height: auto; border-radius: 12px; border: 1px solid #30333A;">
+                        <td align="left" class="mobile-header-padding" style="padding: 40px 40px 40px 40px;">
+                            <h1 style="margin: 0; font-size: 28px; font-weight: 800; color: #10b981; letter-spacing: -1px; font-family: sans-serif;">Tikki Trades</h1>
                         </td>
                     </tr>
                     
@@ -257,10 +250,10 @@ export const NEWS_SUMMARY_EMAIL_TEMPLATE = `<!DOCTYPE html>
             <td align="center" class="mobile-outer-padding" style="padding: 40px 20px;">
                 <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" class="email-container" style="max-width: 600px; background-color: #141414; border-radius: 8px; border: 1px solid #30333A;">
                     
-                    <!-- Header with Logo -->
+                    <!-- Header with Branding -->
                     <tr>
                         <td align="left" class="mobile-header-padding" style="padding: 40px 40px 20px 40px;">
-                            <img src="https://ik.imagekit.io/a6fkjou7d/logo.png?updatedAt=1756378431634" alt="Tikki Trades Logo" width="150" style="max-width: 100%; height: auto;">
+                             <h1 style="margin: 0; font-size: 28px; font-weight: 800; color: #10b981; letter-spacing: -1px; font-family: sans-serif;">Tikki Trades</h1>
                         </td>
                     </tr>
                     
@@ -407,10 +400,10 @@ export const STOCK_ALERT_UPPER_EMAIL_TEMPLATE = `<!DOCTYPE html>
             <td align="center" class="mobile-outer-padding" style="padding: 40px 20px;">
                 <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" class="email-container" style="max-width: 600px; background-color: #141414; border-radius: 8px; border: 1px solid #30333A;">
                     
-                    <!-- Header with Logo -->
+                    <!-- Header with Branding -->
                     <tr>
                         <td align="left" class="mobile-header-padding" style="padding: 40px 40px 20px 40px;">
-                            <img src="https://ik.imagekit.io/a6fkjou7d/logo.png?updatedAt=1756378431634" alt="Tikki Trades Logo" width="150" style="max-width: 100%; height: auto;">
+                             <h1 style="margin: 0; font-size: 28px; font-weight: 800; color: #10b981; letter-spacing: -1px; font-family: sans-serif;">Tikki Trades</h1>
                         </td>
                     </tr>
                     
@@ -616,10 +609,10 @@ export const STOCK_ALERT_LOWER_EMAIL_TEMPLATE = `<!DOCTYPE html>
             <td align="center" class="mobile-outer-padding" style="padding: 40px 20px;">
                 <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" class="email-container" style="max-width: 600px; background-color: #141414; border-radius: 8px; border: 1px solid #30333A;">
                     
-                    <!-- Header with Logo -->
+                    <!-- Header with Branding -->
                     <tr>
                         <td align="left" class="mobile-header-padding" style="padding: 40px 40px 20px 40px;">
-                            <img src="https://ik.imagekit.io/a6fkjou7d/logo.png?updatedAt=1756378431634" alt="Tikki Trades Logo" width="150" style="max-width: 100%; height: auto;">
+                             <h1 style="margin: 0; font-size: 28px; font-weight: 800; color: #10b981; letter-spacing: -1px; font-family: sans-serif;">Tikki Trades</h1>
                         </td>
                     </tr>
                     
@@ -816,10 +809,10 @@ export const VOLUME_ALERT_EMAIL_TEMPLATE = `<!DOCTYPE html>
             <td align="center" class="mobile-outer-padding" style="padding: 40px 20px;">
                 <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" class="email-container" style="max-width: 600px; background-color: #141414; border-radius: 8px; border: 1px solid #30333A;">
                     
-                    <!-- Header with Logo -->
+                    <!-- Header with Branding -->
                     <tr>
                         <td align="left" class="mobile-header-padding" style="padding: 40px 40px 20px 40px;">
-                            <img src="https://ik.imagekit.io/a6fkjou7d/logo.png?updatedAt=1756378431634" alt="Tikki Trades Logo" width="150" style="max-width: 100%; height: auto;">
+                             <h1 style="margin: 0; font-size: 28px; font-weight: 800; color: #10b981; letter-spacing: -1px; font-family: sans-serif;">Tikki Trades</h1>
                         </td>
                     </tr>
                     
@@ -1039,10 +1032,10 @@ export const INACTIVE_USER_REMINDER_EMAIL_TEMPLATE = `<!DOCTYPE html>
             <td align="center" class="mobile-outer-padding" style="padding: 40px 20px;">
                 <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" class="email-container" style="max-width: 600px; background-color: #141414; border-radius: 8px; border: 1px solid #30333A;">
                     
-                    <!-- Header with Logo -->
+                    <!-- Header with Branding -->
                     <tr>
                         <td align="left" class="mobile-header-padding" style="padding: 40px 40px 20px 40px;">
-                            <img src="https://ik.imagekit.io/a6fkjou7d/logo.png?updatedAt=1756378431634" alt="Tikki Trades Logo" width="150" style="max-width: 100%; height: auto;">
+                             <h1 style="margin: 0; font-size: 28px; font-weight: 800; color: #10b981; letter-spacing: -1px; font-family: sans-serif;">Tikki Trades</h1>
                         </td>
                     </tr>
                     

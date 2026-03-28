@@ -148,6 +148,34 @@ Platform available at: `http://localhost:3000`
 
 ---
 
+## ⚙️ Technical Deep Dive
+
+### **1. Identity & Security (Better-Auth)**
+Tikki Trades uses **Better-Auth** for a secure, database-backed authentication system. It handles:
+- **Session Management**: Persistent, secure sessions across browser restarts.
+- **Account Security**: Encrypted password hashing and protected API routes.
+- **Lifecycle Events**: Hooks into the signup process to trigger onboarding workflows.
+
+### **2. Background Orchestration (Inngest)**
+The platform's "brain" for asynchronous tasks is **Inngest**, which handles:
+- **Daily Market Summary**: A scheduled job that fetches personalized news for each user at 12:00 PM UTC.
+- **Onboarding Intelligence**: Event-driven emails triggered when a new user signs up, utilizing **Gemini AI** to personalize the welcome message based on the user's investment goals.
+- **Reliability**: Automatic retries and event-driven architecture ensure no data is lost during network blips.
+
+### **3. Market Data Intelligence (Finnhub)**
+Real-time financial data is sourced through the **Finnhub API**:
+- **News Aggregation**: Fetching the latest market-moving headlines for specific symbols or global categories.
+- **Symbol Resolution**: Mapping user search queries to valid exchange-listed tickers.
+
+### **4. Interactive Analytics (TradingView)**
+We utilize the high-performance **TradingView Widget Ecosystem** for:
+- **Advanced Charting**: Professional-grade candle and baseline charts.
+- **Market Heatmaps**: Sector-specific visualizations of market cap and daily changes.
+- **Technical Gauges**: Real-time technical analysis indicators (Oscillators, Moving Averages) for "Buy/Sell" sentiment.
+- **Fundamentals**: Direct integration of company financial summaries and balance sheet data.
+
+---
+
 ## 💡 Business Impact
 
 - 🚀 **First Impression**: Premium staggered animations increase perceived platform quality.
