@@ -14,32 +14,42 @@ Experience the complete user journey from authentication to deep market analytic
 
 ---
 
-## 🎯 Platform Overview
+## 🎯 Platform System Architecture
 
-Tikki Trades directly addresses the need for professional-grade, interactive market tracking with a focus on visual excellence and performance:
+Tikki Trades is built on a modular, multi-layered architecture designed for visual excellence and real-time financial data processing:
 
-| Feature                              | Implementation                                                                 | Status |
-| ------------------------------------ | ------------------------------------------------------------------------------ | ------ |
-| **Emerald Rebranding**               | Global design system using `@emerald-500` accents                              | ✅     |
-| **Viewport-Locked Layout**           | Non-scrollable dashboard experience for Watchlist & Auth                        | ✅     |
-| **Premium Animations**               | Staggered Framer Motion entries (Title → Form → Button)                         | ✅     |
-| **AI Watchlist Assistant**           | Context-aware chatbot with auto-scrolling message streams                       | ✅     |
-| **Interactive Grid System**          | Global animated background with pulsing high-contrast highlights                | ✅     |
-| **TradingView Integration**          | Rich charting, heatmaps, and technical analysis widgets                        | ✅     |
-| **Optimistic Multi-Row Tables**     | Immediate UI feedback on asset removal with slide-out animations                | ✅     |
-| **Scale & Performance**             | Server-side data fetching with client-side interactivity transitions           | ✅     |
+![Tikki Trades System Architecture](./public/assets/tikki_trades_architecture.png)
+
+### **1. Visual Identity Layer**
+- **Brand Identity**: Defines and manages all user-facing brand elements and layout patterns.
+- **Color Palette**: A curated emerald-on-black system (`#10b981`) for professional financial aesthetics.
+- **Modern Web Interface**: Responsive layout grid with defined font hierarchy (`Poppins` for headings/body) to ensure readability across devices.
+
+### **2. UX Engine Layer**
+- **Orchestrated Animations**: State-driven transitions, feedback, and interactive elements powered by Framer Motion.
+- **Viewport Locking**: Strict content locking within the viewport to maintain a native "app-like" feel on desktop.
+- **Smooth Transitions**: Optimized, seamless page loading with pre-fetching for rapid navigation.
+
+### **3. Feature Modules Layer**
+- **Watchlist Intelligence**: Customizable real-time price tracking with personalized market alerts and optimistic UI updates.
+- **AI Chatbot**: Intelligent trade and support assistant for FAQs and trade queries.
+- **Stock Analytics**: In-depth market analysis with technical indicator integration and pattern recognition.
+- **Portfolio Management**: User-centric data streaming for ultra-low latency price updates.
 
 ---
 
-## 🚀 Features
+## 🚀 Core Features & Implementation
 
-✅ **Multi-Agent Branding** - 100% removal of legacy "Signalist" identity in favor of Tikki Trades.
-✅ **Interactive Global UI** - Consistent `AnimatedBackground` grid system across all protected and public routes.
-✅ **Viewport Excellence** - Dashboards are locked to `h-screen` to prevent broken layouts and provide an "app-like" feel.
-✅ **Smart Internal Scrolling** - Independent scrollable regions for the Watchlist table and AI Sidebar.
-✅ **Staggered Orchestration** - Premium entrance animations orchestrated via `containerVariants` and `itemVariants`.
-✅ **Technical Gauge Indicators** - Real-time technical analysis visualization on stock detail pages.
-✅ **Production-Stable** - Resolved all hydration mismatches and server/client boundary issues.
+| Feature                              | Implementation Details                                                                 | Status |
+| ------------------------------------ | -------------------------------------------------------------------------------------- | ------ |
+| **🎨 Emerald Rebranding**             | 100% theme unification with custom CSS variables and UI tokens                        | ✅      |
+| **📏 Viewport Excellence**           | Dashboard layouts locked to `h-screen` to prevent scrolling fatigue                    | ✅      |
+| **✨ Staggered Orchestration**       | Premium entrance animations (Container/Item variants) for all form fields              | ✅      |
+| **🤖 AI Sidebar Assistant**          | Context-aware chatbot with auto-scrolling conversation history                         | ✅      |
+| **🌐 Global Grid Background**        | Interactive, pulsing grid system consistent across all application routes              | ✅      |
+| **📈 Technical Analytics**           | Real-time gauge indicators and technical analysis summaries on stock pages             | ✅      |
+| **🗂️ Optimistic UI**                | Instant feedback on asset removal with slide-out animation transitions                | ✅      |
+| **🛠️ Hydration Stability**           | Resolved all server/client boundary mismatches for production stability                | ✅      |
 
 ---
 
