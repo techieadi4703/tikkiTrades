@@ -103,15 +103,27 @@ useEffect(() => {
 
 ## 📸 Visual Gallery
 
-````carousel
-![Premium Sign In Experience](./public/assets/signin_page_1774715738679.png)
-<!-- slide -->
-![Market Dashboard & Heatmaps](./public/assets/dashboard_page_1774715857829.png)
-<!-- slide -->
-![Viewport-Locked Watchlist](./public/assets/watchlist_page_1774715884186.png)
-<!-- slide -->
-![Stock Pulse Analytics](./public/assets/stock_details_page_1774716004955.png)
-````
+### **Premium Sign In Experience**
+Staggered animations and interactive dashboard panels greet every user.
+![Sign In Experience](./public/assets/signin_page_1774715738679.png)
+
+---
+
+### **Market Dashboard & Heatmaps**
+A centralized hub for market overview data and technical heatmaps.
+![Dashboard Overview](./public/assets/dashboard_page_1774715857829.png)
+
+---
+
+### **Viewport-Locked Watchlist**
+Precision tracking with a non-scrollable, app-like layout and internal table scrolling.
+![Watchlist Layout](./public/assets/watchlist_page_1774715884186.png)
+
+---
+
+### **Stock Pulse Analytics**
+Deep dives into individual assets with professional-grade charting and technical gauges.
+![Stock Details](./public/assets/stock_details_page_1774716004955.png)
 
 ---
 
