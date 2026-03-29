@@ -8,7 +8,7 @@ import { getBotResponse } from "@/lib/chatbot/watchlistChatbot";
 import { motion, AnimatePresence } from "framer-motion";
 
 
-type SortKey = "company" | "price" | "change" | "changePercent" | "volume";
+type SortKey = "company" | "price" | "change" | "changePercent";
 
 type WatchlistItem = {
   _id: string;
@@ -196,7 +196,7 @@ export default function WatchlistClient({
           <div
             className="grid bg-white/[0.03] px-6 py-4 text-[11px] font-bold uppercase tracking-wider text-gray-500 border-b border-white/5"
             style={{
-              gridTemplateColumns: "50px 1.5fr 1fr 1fr 1fr 1fr 1fr 1.5fr",
+              gridTemplateColumns: "50px 2fr 1fr 1fr 1fr 1fr 1.5fr",
             }}
           >
             <div className="flex justify-center">★</div>
@@ -205,7 +205,6 @@ export default function WatchlistClient({
             <SortHeader label="Price" k="price" />
             <SortHeader label="Change" k="change" />
             <SortHeader label="Change %" k="changePercent" />
-            <SortHeader label="Volume" k="volume" />
             <div className="text-center">Action</div>
           </div>
 
@@ -224,7 +223,7 @@ export default function WatchlistClient({
                     transition={{ duration: 0.3 }}
                     className="grid items-center px-6 py-5 group hover:bg-white/[0.03] transition-all cursor-default"
                     style={{
-                      gridTemplateColumns: "50px 1.5fr 1fr 1fr 1fr 1fr 1fr 1.5fr",
+                      gridTemplateColumns: "50px 2fr 1fr 1fr 1fr 1fr 1.5fr",
                     }}
                   >
                     <div className="flex justify-center">
@@ -248,8 +247,6 @@ export default function WatchlistClient({
                     <div className={`font-mono text-sm px-2 py-0.5 rounded-md w-fit ${isUp ? "bg-emerald-500/10 text-emerald-400" : "bg-red-500/10 text-red-400"}`}>
                       {isUp ? '+' : ''}{item.changePercent.toFixed(2)}%
                     </div>
-
-                    <div className="text-gray-500 text-sm font-mono">{item.volume.toLocaleString()}</div>
 
                     <div className="flex justify-center">
                       <div className="scale-90 group-hover:scale-95 transition-transform flex justify-center w-full max-w-[140px]">
