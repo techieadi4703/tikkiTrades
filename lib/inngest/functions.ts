@@ -104,6 +104,9 @@ export const sendDailyNewsSummary = inngest.createFunction(
                     console.error('Failed to summarize news for : ', user.email);
                     userNewsSummaries.push({ user, newsContent: null });
                 }
+
+                // Add sleep to stay safely under Gemini 15 RPM limit on free tier (~60 seconds)
+                await step.sleep(`rate-limit-sleep-${user.email}`, '60000ms');
             }
 
         // Step #4: (placeholder) Send the emails
