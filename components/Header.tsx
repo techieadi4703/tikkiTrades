@@ -5,9 +5,12 @@ import NavItems from './NavItems'
 import UserDropdown from './UserDropdown'
 import { searchStocks } from '@/lib/actions/finnhub.actions'
 import { TrendingUp } from 'lucide-react'
+import NotificationBell from './NotificationBell'
+import { getUnreadNotifications } from '@/lib/actions/notification.actions'
 
 const Header =async ({user}:{user:User}) => {
     const initialStocks=await searchStocks();
+    const notifications = user?.id ? await getUnreadNotifications(user.id) : [];
   return (
     <header className='sticky top-0 z-50 bg-black/40 backdrop-blur-md border-b border-white/5'>
         <div className='container flex justify-between items-center px-6 py-4'>
@@ -20,7 +23,10 @@ const Header =async ({user}:{user:User}) => {
             <nav className='hidden sm:block '>
                 <NavItems initialStocks={initialStocks}/>
             </nav>
-            <UserDropdown user={user} initialStocks={initialStocks}/>
+            <div className="flex items-center gap-2">
+                {user && <NotificationBell userId={user.id} initialNotifications={notifications} />}
+                <UserDropdown user={user} initialStocks={initialStocks}/>
+            </div>
         </div>
     </header>
   )

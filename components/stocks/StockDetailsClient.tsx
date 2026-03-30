@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { TrendingUp } from "lucide-react";
 import TradingViewWidget from "@/components/TradingViewWidget";
 import WatchlistButton from "@/components/WatchlistButton";
+import AddAlertModal from "@/components/stocks/AddAlertModal";
 import {
   SYMBOL_INFO_WIDGET_CONFIG,
   CANDLE_CHART_WIDGET_CONFIG,
@@ -53,11 +54,14 @@ export default function StockDetailsClient({
             <p className="text-gray-500 text-sm font-medium">{companyName}</p>
           </div>
         </div>
-        <WatchlistButton
-          symbol={symbol.toUpperCase()}
-          company={companyName}
-          isInWatchlist={alreadyInWatchlist}
-        />
+        <div className="flex items-center gap-3">
+          <AddAlertModal symbol={symbol.toUpperCase()} />
+          <WatchlistButton
+            symbol={symbol.toUpperCase()}
+            company={companyName}
+            isInWatchlist={alreadyInWatchlist}
+          />
+        </div>
       </motion.div>
 
       {/* Main Dashboard Grid */}

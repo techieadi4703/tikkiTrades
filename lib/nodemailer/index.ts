@@ -1,6 +1,11 @@
 
 import nodemailer from 'nodemailer';
-import {WELCOME_EMAIL_TEMPLATE, NEWS_SUMMARY_EMAIL_TEMPLATE} from "@/lib/nodemailer/templates";
+import {
+    WELCOME_EMAIL_TEMPLATE, 
+    NEWS_SUMMARY_EMAIL_TEMPLATE,
+    STOCK_ALERT_UPPER_EMAIL_TEMPLATE,
+    STOCK_ALERT_LOWER_EMAIL_TEMPLATE
+} from "@/lib/nodemailer/templates";
 
 export const transporter = nodemailer.createTransport({
     service: 'gmail',
@@ -38,6 +43,32 @@ export const sendNewsSummaryEmail = async (
         to: email,
         subject: `📈 Market News Summary Today - ${date}`,
         text: `Today's market news summary from Tikki Trades`,
+        html: htmlTemplate,
+    };
+
+    await transporter.sendMail(mailOptions);
+};
+
+export const sendPriceAlertEmail = async (
+    { email, symbol, company, currentPrice, targetPrice, condition, timestamp }: 
+    { email: string; symbol: string; company: string; currentPrice: number; targetPrice: number; condition: 'above' | 'below'; timestamp: string }
+): Promise<void> => {
+    const baseTemplate = condition === 'above' ? STOCK_ALERT_UPPER_EMAIL_TEMPLATE : STOCK_ALERT_LOWER_EMAIL_TEMPLATE;
+    const htmlTemplate = baseTemplate
+        .replace(/{{symbol}}/g, symbol)
+        .replace(/{{company}}/g, company)
+        .replace(/{{currentPrice}}/g, currentPrice.toString())
+        .replace(/{{targetPrice}}/g, targetPrice.toString())
+        .replace(/{{timestamp}}/g, timestamp);
+
+    const emoji = condition === 'above' ? '📈' : '📉';
+    const direction = condition === 'above' ? 'Above' : 'Below';
+
+    const mailOptions = {
+        from: `"Tikki Trades Alerts" <techie.adi47@gmail.com>`,
+        to: email,
+        subject: `${emoji} Price Alert: ${symbol} is ${direction} ${targetPrice}`,
+        text: `Price Alert: ${symbol} is now ${currentPrice}, which is ${direction.toLowerCase()} your target of ${targetPrice}.`,
         html: htmlTemplate,
     };
 
