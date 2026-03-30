@@ -11,7 +11,7 @@ export default async function CompanyNewsFeed({ symbol }: { symbol: string }) {
     <div className="w-full flex flex-col gap-8 h-[600px] xl:h-[842px]">
       {score && <SentinelScoreClient scoreData={score} />}
 
-      <div className="w-full flex-1 flex flex-col min-h-[300px]">
+      <div className="w-full flex-1 flex flex-col min-h-[150px]">
         <div className="flex items-center gap-3 mb-6 shrink-0">
           <div className="h-8 w-1 bg-emerald-500 rounded-full"></div>
           <h2 className="text-xl xl:text-2xl font-bold text-white tracking-tight">

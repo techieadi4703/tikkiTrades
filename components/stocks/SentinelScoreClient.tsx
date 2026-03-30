@@ -103,7 +103,7 @@ export default function SentinelScoreClient({ scoreData }: { scoreData?: Sentine
               exit={{ height: 0, opacity: 0 }}
               className="overflow-hidden"
             >
-              <div className="pt-4 pb-2 space-y-4">
+              <div className="pt-4 pb-2 space-y-4 max-h-[350px] overflow-y-auto custom-scrollbar pr-2">
                 <p className="text-sm text-gray-400 leading-relaxed px-2">
                   {rationale}
                 </p>
