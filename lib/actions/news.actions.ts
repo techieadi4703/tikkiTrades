@@ -26,9 +26,36 @@ export async function getCompanyNewsWithSentiment(symbol: string): Promise<{ art
 
     const range = getDateRange(7);
     const token = process.env.FINNHUB_API_KEY ?? process.env.NEXT_PUBLIC_FINNHUB_API_KEY;
-    const url = `${FINNHUB_BASE_URL}/company-news?symbol=${encodeURIComponent(upperSymbol)}&from=${range.from}&to=${range.to}&token=${token}`;
-    
-    const articles = await fetchJSON<any[]>(url, 0); 
+    let articles: any[] = [];
+    if (!upperSymbol.includes('.')) {
+      try {
+        const url = `${FINNHUB_BASE_URL}/company-news?symbol=${encodeURIComponent(upperSymbol)}&from=${range.from}&to=${range.to}&token=${token}`;
+        articles = await fetchJSON<any[]>(url, 0); 
+      } catch (err) {
+        console.warn(`Finnhub news fetch failed for ${upperSymbol}`);
+      }
+    } else {
+      // Use Yahoo Finance specifically for .NS and other international stocks
+      try {
+        const yahooFinance = (await import('yahoo-finance2')).default;
+        const query: any = await yahooFinance.search(upperSymbol, { newsCount: 6 });
+        if (query && query.news) {
+          articles = query.news.map((item: any) => ({
+            category: 'company',
+            datetime: item.providerPublishTime,
+            headline: item.title,
+            id: item.uuid || Math.random().toString(),
+            image: item.thumbnail?.resolutions?.[0]?.url || '',
+            related: upperSymbol,
+            source: item.publisher,
+            summary: item.type === 'VIDEO' ? 'Video Report' : item.title,
+            url: item.link
+          }));
+        }
+      } catch (e) {
+        console.warn(`Yahoo Finance news fetch failed for ${upperSymbol}:`, e);
+      }
+    }
     
     const validArticles = (articles || []).filter(a => a.headline && a.summary && a.url && a.datetime);
     

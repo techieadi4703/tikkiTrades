@@ -3,7 +3,7 @@
 import { getDateRange, validateArticle, formatArticle } from '@/lib/utils';
 import { POPULAR_STOCK_SYMBOLS } from '@/lib/constants';
 import { cache } from 'react';
-
+import yahooFinance from 'yahoo-finance2';
 const FINNHUB_BASE_URL = 'https://finnhub.io/api/v1';
 const NEXT_PUBLIC_FINNHUB_API_KEY = process.env.NEXT_PUBLIC_FINNHUB_API_KEY ?? '';
 
@@ -179,20 +179,93 @@ export const searchStocks = cache(async (query?: string): Promise<StockWithWatch
   }
 });
 
+// --- Yahoo Finance Helpers ---
+async function getYahooCompanyProfile(symbol: string) {
+  try {
+    const query: any = await yahooFinance.quote(symbol);
+    return {
+      name: query.longName || query.shortName || symbol,
+      ticker: symbol,
+      exchange: query.exchange || 'Unknown'
+    };
+  } catch (err) {
+    console.warn(`Yahoo fallback failed for profile: ${symbol}`, err);
+    return null;
+  }
+}
+
+async function getYahooQuote(symbol: string) {
+  try {
+    const query: any = await yahooFinance.quote(symbol);
+    return {
+      c: query.regularMarketPrice,
+      d: query.regularMarketChange,
+      dp: query.regularMarketChangePercent,
+      h: query.regularMarketDayHigh,
+      l: query.regularMarketDayLow,
+      o: query.regularMarketOpen,
+      pc: query.regularMarketPreviousClose,
+      v: query.regularMarketVolume
+    };
+  } catch (err) {
+    console.warn(`Yahoo fallback failed for quote: ${symbol}`, err);
+    return null;
+  }
+}
+
+async function getYahooBasicFinancials(symbol: string) {
+  try {
+    const query: any = await yahooFinance.quoteSummary(symbol, { modules: ['summaryDetail', 'financialData'] });
+    return {
+      metric: {
+        peBasicExclExtraTTM: query.summaryDetail?.trailingPE,
+        peNormalizedAnnual: query.summaryDetail?.forwardPE,
+        revenueGrowthTTMYoy: (query.financialData?.revenueGrowth || 0) * 100,
+        '52WeekHigh': query.summaryDetail?.fiftyTwoWeekHigh,
+        '52WeekLow': query.summaryDetail?.fiftyTwoWeekLow,
+        '10DayAverageTradingVolume': query.summaryDetail?.averageVolume10days || query.summaryDetail?.averageVolume
+      }
+    };
+  } catch (err) {
+    console.warn(`Yahoo fallback failed for financials: ${symbol}`, err);
+    return null;
+  }
+}
+
+// --- Primary Actions ---
+
 export async function getCompanyProfile(symbol: string) {
-  const token = process.env.FINNHUB_API_KEY ?? process.env.NEXT_PUBLIC_FINNHUB_API_KEY;
-  const url = `${FINNHUB_BASE_URL}/stock/profile2?symbol=${symbol}&token=${token}`;
-  return fetchJSON<any>(url, 3600);
+  if (symbol.includes('.')) return getYahooCompanyProfile(symbol);
+  try {
+    const token = process.env.FINNHUB_API_KEY ?? process.env.NEXT_PUBLIC_FINNHUB_API_KEY;
+    const url = `${FINNHUB_BASE_URL}/stock/profile2?symbol=${symbol}&token=${token}`;
+    return await fetchJSON<any>(url, 3600);
+  } catch (error: any) {
+    console.warn(`Failed to fetch company profile from Finnhub for ${symbol}, falling back to Yahoo:`, error.message);
+    return getYahooCompanyProfile(symbol);
+  }
 }
 
 export async function getQuote(symbol: string) {
-  const token = process.env.FINNHUB_API_KEY ?? process.env.NEXT_PUBLIC_FINNHUB_API_KEY;
-  const url = `https://finnhub.io/api/v1/quote?symbol=${symbol}&token=${token}`;
-  return fetchJSON<any>(url, 30);
+  if (symbol.includes('.')) return getYahooQuote(symbol);
+  try {
+    const token = process.env.FINNHUB_API_KEY ?? process.env.NEXT_PUBLIC_FINNHUB_API_KEY;
+    const url = `https://finnhub.io/api/v1/quote?symbol=${symbol}&token=${token}`;
+    return await fetchJSON<any>(url, 30);
+  } catch (error: any) {
+    console.warn(`Failed to fetch quote from Finnhub for ${symbol}, falling back to Yahoo:`, error.message);
+    return getYahooQuote(symbol);
+  }
 }
 
 export async function getBasicFinancials(symbol: string) {
-  const token = process.env.FINNHUB_API_KEY ?? process.env.NEXT_PUBLIC_FINNHUB_API_KEY;
-  const url = `${FINNHUB_BASE_URL}/stock/metric?symbol=${symbol}&metric=all&token=${token}`;
-  return fetchJSON<any>(url, 3600); // Cache for 1 hour to preserve API quota
+  if (symbol.includes('.')) return getYahooBasicFinancials(symbol);
+  try {
+    const token = process.env.FINNHUB_API_KEY ?? process.env.NEXT_PUBLIC_FINNHUB_API_KEY;
+    const url = `${FINNHUB_BASE_URL}/stock/metric?symbol=${symbol}&metric=all&token=${token}`;
+    return await fetchJSON<any>(url, 3600);
+  } catch (error: any) {
+    console.warn(`Failed to fetch basic financials from Finnhub for ${symbol}, falling back to Yahoo:`, error.message);
+    return getYahooBasicFinancials(symbol);
+  }
 }
