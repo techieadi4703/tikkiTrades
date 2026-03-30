@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { format } from 'date-fns';
-import { createJournalEntry } from '@/lib/actions/journal.actions';
+import { createJournalEntry, retryJournalAnalysis } from '@/lib/actions/journal.actions';
 import { 
   BookOpen, 
   PenTool, 
@@ -13,7 +13,8 @@ import {
   Lightbulb,
   Plus,
   Calendar,
-  ChevronRight
+  ChevronRight,
+  RefreshCcw
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -38,6 +39,7 @@ export default function JournalClient({ initialEntries, userId }: { initialEntri
   const [selectedEntry, setSelectedEntry] = useState<JournalEntry | null>(initialEntries[0] || null);
   const [isCreatingNew, setIsCreatingNew] = useState(!initialEntries.length);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isRetrying, setIsRetrying] = useState(false);
 
   const [ticker, setTicker] = useState('');
   const [entryText, setEntryText] = useState('');
@@ -68,6 +70,32 @@ export default function JournalClient({ initialEntries, userId }: { initialEntri
       console.error(error);
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleRetry = async () => {
+    if (!selectedEntry || !selectedEntry._id) return;
+    setIsRetrying(true);
+    let loadingToastId;
+    try {
+      loadingToastId = toast.loading("Retrying Gemini AI analysis...");
+      const updatedEntry = await retryJournalAnalysis(selectedEntry._id);
+      
+      const newEntries = entries.map(e => e._id === updatedEntry._id ? updatedEntry : e);
+      setEntries(newEntries);
+      setSelectedEntry(updatedEntry);
+      
+      toast.dismiss(loadingToastId);
+      if (updatedEntry.aiReview) {
+        toast.success("AI Analysis successful!");
+      } else {
+        toast.error("Still hitting API rate limits. Please try again later.");
+      }
+    } catch (error) {
+      if (loadingToastId) toast.dismiss(loadingToastId);
+      toast.error("Failed to re-analyze entry.");
+    } finally {
+      setIsRetrying(false);
     }
   };
 
@@ -128,7 +156,7 @@ export default function JournalClient({ initialEntries, userId }: { initialEntri
                 <p className="text-sm text-gray-400 line-clamp-2">
                   {entry.entryText}
                 </p>
-                {entry.aiReview && (
+                {entry.aiReview && typeof entry.aiReview.thesisStrength === 'number' && (
                   <div className="mt-3 flex gap-2">
                     <span className="text-xs bg-emerald-500/10 text-emerald-500 px-2 py-1 rounded border border-emerald-500/20">
                       Score: {entry.aiReview.thesisStrength}/10
@@ -251,7 +279,37 @@ export default function JournalClient({ initialEntries, userId }: { initialEntri
               </div>
 
               {/* AI Review Sections */}
-              {selectedEntry.aiReview && (
+              {(!selectedEntry.aiReview || typeof selectedEntry.aiReview.thesisStrength !== 'number' || selectedEntry.aiReview.emotionalBiases?.[0] === "API Quota Exceeded") ? (
+                <motion.div 
+                  initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+                  className="bg-[#0F0F0F] border border-red-500/20 rounded-2xl p-8 flex flex-col items-center justify-center text-center relative overflow-hidden group shadow-lg"
+                >
+                  <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity">
+                    <AlertTriangle className="w-32 h-32 text-red-500" />
+                  </div>
+                  <div className="bg-red-500/10 p-4 rounded-full mb-4 border border-red-500/20 relative z-10">
+                    <AlertTriangle className="w-8 h-8 text-red-500" />
+                  </div>
+                  <h3 className="text-xl font-bold text-white mb-2 relative z-10">AI Analysis Unavailable</h3>
+                  <p className="text-gray-400 max-w-md mb-8 relative z-10 text-sm leading-relaxed">
+                    Gemini API rate limit reached (Free Tier). Your trade journal was safely saved to the database, so your data is secure. You can manually re-trigger the AI Coach analysis below when you are ready.
+                  </p>
+                  <button 
+                    onClick={handleRetry}
+                    disabled={isRetrying}
+                    className="relative z-10 flex items-center gap-2 bg-red-500 hover:bg-red-600 active:bg-red-700 text-black px-6 py-2.5 rounded-lg font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isRetrying ? (
+                      <motion.div animate={{ rotate: -360 }} transition={{ repeat: Infinity, duration: 1, ease: "linear" }}>
+                        <RefreshCcw className="w-5 h-5" />
+                      </motion.div>
+                    ) : (
+                      <RefreshCcw className="w-5 h-5" />
+                    )}
+                    {isRetrying ? "Retrying..." : "Retry AI Analysis"}
+                  </button>
+                </motion.div>
+              ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   
                   {/* Thesis Score Card */}
