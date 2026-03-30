@@ -2,13 +2,13 @@
 
 import { GoogleGenAI } from '@google/genai';
 import { connectToDatabase } from '@/database/mongoose';
-import { NewsCache, NewsArticle } from '@/database/models/newsCache.model';
+import { NewsCache, NewsArticle, SentinelScore } from '@/database/models/newsCache.model';
 import { getDateRange, formatArticle } from '@/lib/utils';
-import { fetchJSON } from '@/lib/actions/finnhub.actions';
+import { fetchJSON, getBasicFinancials, getQuote } from '@/lib/actions/finnhub.actions';
 
 const FINNHUB_BASE_URL = 'https://finnhub.io/api/v1';
 
-export async function getCompanyNewsWithSentiment(symbol: string): Promise<NewsArticle[]> {
+export async function getCompanyNewsWithSentiment(symbol: string): Promise<{ articles: NewsArticle[], score?: SentinelScore }> {
   try {
     await connectToDatabase();
     const upperSymbol = symbol.toUpperCase();
@@ -16,9 +16,12 @@ export async function getCompanyNewsWithSentiment(symbol: string): Promise<NewsA
     const cached = await NewsCache.findOne({ symbol: upperSymbol });
     const now = new Date();
     
-    if (cached && now.getTime() - cached.updatedAt.getTime() < 30 * 60 * 1000) {
-      // Return cached articles if less than 30 minutes old
-      return JSON.parse(JSON.stringify(cached.articles));
+    if (cached && cached.sentinelScore && now.getTime() - cached.updatedAt.getTime() < 30 * 60 * 1000) {
+      // Return cached articles if less than 30 minutes old and if the AI Sentinel Score exists
+      return {
+        articles: JSON.parse(JSON.stringify(cached.articles)),
+        score: JSON.parse(JSON.stringify(cached.sentinelScore)),
+      };
     }
 
     const range = getDateRange(7);
@@ -74,15 +77,71 @@ ${topArticles.map((a, i) => `[${i}] Headline: "${a.headline}". Summary: "${a.sum
       for (const article of topArticles) article.sentiment = 'Neutral';
     }
     
+    // Generate Sentinel Score
+    let sentinelScore: SentinelScore | undefined = undefined;
+    
+    try {
+      if (ai) {
+        const [fundamentals, quote] = await Promise.all([
+          getBasicFinancials(upperSymbol),
+          getQuote(upperSymbol)
+        ]);
+
+        const positiveCount = topArticles.filter(a => a.sentiment === 'Positive').length;
+        const negativeCount = topArticles.filter(a => a.sentiment === 'Negative').length;
+        const neutralCount = topArticles.filter(a => a.sentiment === 'Neutral').length;
+
+        const currentPrice = quote?.c || 0;
+        const volume = quote?.v || 0;
+        const peRatio = fundamentals?.metric?.peBasicExclExtraTTM || fundamentals?.metric?.peNormalizedAnnual || 'N/A';
+        const revGrowth = fundamentals?.metric?.revenueGrowthTTMYoy || fundamentals?.metric?.revenueGrowth3Y || 'N/A';
+        const high52 = fundamentals?.metric?.['52WeekHigh'] || quote?.h || 'N/A';
+        const low52 = fundamentals?.metric?.['52WeekLow'] || quote?.l || 'N/A';
+        const avgVolume = fundamentals?.metric?.['10DayAverageTradingVolume'] || 'N/A';
+
+        const scorePrompt = `You are a professional AI stock analyst. Analyze ${upperSymbol}.
+Data:
+- Current Price: $${currentPrice}
+- 52W High/Low: $${high52} / $${low52}
+- P/E Ratio: ${peRatio}
+- Revenue Growth: ${revGrowth}%
+- News Sentiment: ${positiveCount} Positive, ${negativeCount} Negative, ${neutralCount} Neutral.
+- Current Volume: ${volume} (Avg: ${avgVolume})
+
+Generate a composite "Sentinel Score" rating.
+You MUST reply with exactly and ONLY a JSON object evaluating this data. Any text outside JSON will break the parsing. Format:
+{
+  "score": number (0 to 100, 100 being best),
+  "verdict": "Strong Buy" | "Buy" | "Hold" | "Sell" | "Strong Sell",
+  "rationale": "A 2-3 sentence explanation of your rating",
+  "bulls": ["Reason 1", "Reason 2"],
+  "bears": ["Concern 1", "Concern 2"]
+}`;
+
+        const scoreResponse = await ai.models.generateContent({
+          model: 'gemini-2.5-flash',
+          contents: scorePrompt,
+          config: { responseMimeType: 'application/json' }
+        });
+        
+        sentinelScore = JSON.parse(scoreResponse.text || "{}");
+      }
+    } catch (err) {
+      console.error("Sentinel Score generation failed:", err);
+    }
+    
     await NewsCache.findOneAndUpdate(
       { symbol: upperSymbol },
-      { symbol: upperSymbol, articles: topArticles, updatedAt: now },
+      { symbol: upperSymbol, articles: topArticles, sentinelScore, updatedAt: now },
       { upsert: true, new: true }
     );
     
-    return JSON.parse(JSON.stringify(topArticles));
+    return {
+      articles: JSON.parse(JSON.stringify(topArticles)),
+      score: sentinelScore ? JSON.parse(JSON.stringify(sentinelScore)) : undefined
+    };
   } catch (error) {
     console.error('getCompanyNewsWithSentiment error:', error);
-    return [];
+    return { articles: [], score: undefined };
   }
 }

@@ -11,9 +11,18 @@ export interface NewsArticle {
   image?: string;
 }
 
+export interface SentinelScore {
+  score: number;
+  verdict: "Strong Buy" | "Buy" | "Hold" | "Sell" | "Strong Sell";
+  rationale: string;
+  bulls: string[];
+  bears: string[];
+}
+
 export interface NewsCacheItem extends Document {
   symbol: string;
   articles: NewsArticle[];
+  sentinelScore?: SentinelScore;
   updatedAt: Date;
 }
 
@@ -35,6 +44,7 @@ const NewsCacheSchema = new Schema<NewsCacheItem>(
   {
     symbol: { type: String, required: true, unique: true, uppercase: true, trim: true, index: true },
     articles: { type: [NewsArticleSchema], default: [] },
+    sentinelScore: { type: Object },
     updatedAt: { type: Date, default: Date.now },
   },
   { timestamps: false }

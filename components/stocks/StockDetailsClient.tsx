@@ -32,12 +32,12 @@ export default function StockDetailsClient({
   const scriptUrl = `https://s3.tradingview.com/external-embedding/embed-widget-`;
 
   return (
-    <motion.div 
+    <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       className="p-4 md:p-8 max-w-[1700px] mx-auto"
     >
-      <motion.div 
+      <motion.div
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8"
@@ -47,20 +47,24 @@ export default function StockDetailsClient({
             <TrendingUp className="w-6 h-6 text-emerald-500" />
           </div>
           <div>
-            <h1 className="text-3xl font-bold text-white tracking-tight">{upper}</h1>
+            <h1 className="text-3xl font-bold text-white tracking-tight">
+              {upper}
+            </h1>
             <p className="text-gray-500 text-sm font-medium">{companyName}</p>
           </div>
         </div>
-        <WatchlistButton symbol={symbol.toUpperCase()} company={companyName} isInWatchlist={alreadyInWatchlist} />
+        <WatchlistButton
+          symbol={symbol.toUpperCase()}
+          company={companyName}
+          isInWatchlist={alreadyInWatchlist}
+        />
       </motion.div>
 
-      {/* Above the Fold: Main Chart and News */}
-      <motion.section 
-        className="grid grid-cols-1 xl:grid-cols-3 gap-8 w-full"
-      >
+      {/* Main Dashboard Grid */}
+      <motion.section className="grid grid-cols-1 xl:grid-cols-3 gap-8 w-full">
         {/* Left column (Chart + Overview) */}
         <div className="xl:col-span-2 flex flex-col gap-8">
-          <motion.div 
+          <motion.div
             initial={{ x: -20, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             transition={{ delay: 0.1 }}
@@ -73,7 +77,7 @@ export default function StockDetailsClient({
             />
           </motion.div>
 
-          <motion.div 
+          <motion.div
             initial={{ x: -20, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             transition={{ delay: 0.2 }}
@@ -88,74 +92,67 @@ export default function StockDetailsClient({
           </motion.div>
         </div>
 
-        {/* Right column (News Feed + Tech Analysis) */}
+        {/* Right column (Sentinel Score + News Feed) */}
         <div className="xl:col-span-1 flex flex-col gap-8 h-full w-full">
           {newsFeedNode && (
-            <motion.div 
+            <motion.div
               initial={{ x: 20, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
               transition={{ delay: 0.3 }}
-              className="w-full"
+              className="w-full h-full flex flex-col"
             >
               {newsFeedNode}
             </motion.div>
           )}
-
-          <motion.div 
-            initial={{ x: 20, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            transition={{ delay: 0.4 }}
-            className="bg-white/2 backdrop-blur-xl border border-white/5 rounded-2xl overflow-hidden shadow-2xl p-1 w-full"
-          >
-            <TradingViewWidget
-              scriptUrl={`${scriptUrl}technical-analysis.js`}
-              config={TECHNICAL_ANALYSIS_WIDGET_CONFIG(symbol)}
-              height={380}
-            />
-          </motion.div>
         </div>
       </motion.section>
 
-      {/* Below the Fold: Deep Dive Analysis */}
+      {/* Deep Dive Metrics (Moved directly beneath Top Dashboard) */}
+      <motion.section
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.4 }}
+        className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full mt-8 items-start"
+      >
+        {[
+          { tag: 'technical-analysis.js', config: TECHNICAL_ANALYSIS_WIDGET_CONFIG(symbol), h: 464, d: 0.1 },
+          { tag: 'financials.js', config: COMPANY_FINANCIALS_WIDGET_CONFIG(symbol), h: 464, d: 0.2 },
+        ].map((item, i) => (
+          <motion.div 
+            key={item.tag}
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: item.d + 0.4 }}
+            className="bg-white/2 backdrop-blur-xl border border-white/5 rounded-2xl overflow-hidden shadow-2xl p-1 w-full"
+          >
+            <TradingViewWidget
+              scriptUrl={`${scriptUrl}${item.tag}`}
+              config={item.config}
+              height={item.h}
+            />
+          </motion.div>
+        ))}
+      </motion.section>
+
+      {/* Below the Fold: Full Width Baseline Chart */}
       <motion.section 
         className="flex flex-col gap-8 w-full mt-8"
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 0.4 }}
+        transition={{ delay: 0.5 }}
       >
         <motion.div 
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.5 }}
+          transition={{ delay: 0.6 }}
           className="bg-white/2 backdrop-blur-xl border border-white/5 rounded-2xl overflow-hidden shadow-2xl p-1 w-full"
         >
           <TradingViewWidget
-            scriptUrl={`${scriptUrl}symbol-profile.js`}
-            config={COMPANY_PROFILE_WIDGET_CONFIG(symbol)}
-            height={250}
+            scriptUrl={`${scriptUrl}advanced-chart.js`}
+            config={BASELINE_WIDGET_CONFIG(symbol)}
+            height={464}
           />
         </motion.div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full items-start">
-          {[
-            { tag: 'financials.js', config: COMPANY_FINANCIALS_WIDGET_CONFIG(symbol), h: 464, d: 0.1 },
-            { tag: 'advanced-chart.js', config: BASELINE_WIDGET_CONFIG(symbol), h: 464, d: 0.2 },
-          ].map((item, i) => (
-            <motion.div 
-              key={item.tag}
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: item.d + 0.5 }}
-              className="bg-white/2 backdrop-blur-xl border border-white/5 rounded-2xl overflow-hidden shadow-2xl p-1"
-            >
-              <TradingViewWidget
-                scriptUrl={`${scriptUrl}${item.tag}`}
-                config={item.config}
-                height={item.h}
-              />
-            </motion.div>
-          ))}
-        </div>
       </motion.section>
     </motion.div>
   );
