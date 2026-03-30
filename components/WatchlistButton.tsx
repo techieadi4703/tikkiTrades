@@ -53,7 +53,7 @@ const WatchlistButton = ({
     <motion.button 
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
-      className={`w-full ${added ? "emerald-remove" : "emerald-btn"}`} 
+      className={`w-full sm:w-[240px] px-6 ${added ? "emerald-remove" : "emerald-btn"}`} 
       onClick={handleClick}
     >
       {label}
