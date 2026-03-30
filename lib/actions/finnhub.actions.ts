@@ -3,7 +3,8 @@
 import { getDateRange, validateArticle, formatArticle } from '@/lib/utils';
 import { POPULAR_STOCK_SYMBOLS } from '@/lib/constants';
 import { cache } from 'react';
-import yahooFinance from 'yahoo-finance2';
+import YahooFinance from 'yahoo-finance2';
+const yahooFinance = new YahooFinance({ suppressNotices: ['yahooSurvey'] });
 const FINNHUB_BASE_URL = 'https://finnhub.io/api/v1';
 const NEXT_PUBLIC_FINNHUB_API_KEY = process.env.NEXT_PUBLIC_FINNHUB_API_KEY ?? '';
 
@@ -230,6 +231,28 @@ async function getYahooBasicFinancials(symbol: string) {
     console.warn(`Yahoo fallback failed for financials: ${symbol}`, err);
     return null;
   }
+}
+
+export async function getYahooNews(symbol: string) {
+  try {
+    const query: any = await yahooFinance.search(symbol, { newsCount: 6 });
+    if (query && query.news) {
+      return query.news.map((item: any) => ({
+        category: 'company',
+        datetime: item.providerPublishTime,
+        headline: item.title,
+        id: item.uuid || Math.random().toString(),
+        image: item.thumbnail?.resolutions?.[0]?.url || '',
+        related: symbol,
+        source: item.publisher,
+        summary: item.type === 'VIDEO' ? 'Video Report' : item.title,
+        url: item.link
+      }));
+    }
+  } catch (err) {
+    console.warn(`Yahoo fallback failed for news: ${symbol}`, err);
+  }
+  return [];
 }
 
 // --- Primary Actions ---

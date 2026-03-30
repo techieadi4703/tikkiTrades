@@ -4,7 +4,7 @@ import { GoogleGenAI } from '@google/genai';
 import { connectToDatabase } from '@/database/mongoose';
 import { NewsCache, NewsArticle, SentinelScore } from '@/database/models/newsCache.model';
 import { getDateRange, formatArticle } from '@/lib/utils';
-import { fetchJSON, getBasicFinancials, getQuote } from '@/lib/actions/finnhub.actions';
+import { fetchJSON, getBasicFinancials, getQuote, getYahooNews } from '@/lib/actions/finnhub.actions';
 
 const FINNHUB_BASE_URL = 'https://finnhub.io/api/v1';
 
@@ -18,10 +18,13 @@ export async function getCompanyNewsWithSentiment(symbol: string): Promise<{ art
     
     if (cached && cached.sentinelScore && now.getTime() - cached.updatedAt.getTime() < 30 * 60 * 1000) {
       // Return cached articles if less than 30 minutes old and if the AI Sentinel Score exists
-      return {
-        articles: JSON.parse(JSON.stringify(cached.articles)),
-        score: JSON.parse(JSON.stringify(cached.sentinelScore)),
-      };
+      // FORCE RE-FETCH for international tickers if the cached articles array is empty
+      if (!upperSymbol.includes('.') || (cached.articles && cached.articles.length > 0)) {
+        return {
+          articles: JSON.parse(JSON.stringify(cached.articles)),
+          score: JSON.parse(JSON.stringify(cached.sentinelScore)),
+        };
+      }
     }
 
     const range = getDateRange(7);
@@ -36,25 +39,7 @@ export async function getCompanyNewsWithSentiment(symbol: string): Promise<{ art
       }
     } else {
       // Use Yahoo Finance specifically for .NS and other international stocks
-      try {
-        const yahooFinance = (await import('yahoo-finance2')).default;
-        const query: any = await yahooFinance.search(upperSymbol, { newsCount: 6 });
-        if (query && query.news) {
-          articles = query.news.map((item: any) => ({
-            category: 'company',
-            datetime: item.providerPublishTime,
-            headline: item.title,
-            id: item.uuid || Math.random().toString(),
-            image: item.thumbnail?.resolutions?.[0]?.url || '',
-            related: upperSymbol,
-            source: item.publisher,
-            summary: item.type === 'VIDEO' ? 'Video Report' : item.title,
-            url: item.link
-          }));
-        }
-      } catch (e) {
-        console.warn(`Yahoo Finance news fetch failed for ${upperSymbol}:`, e);
-      }
+      articles = await getYahooNews(upperSymbol);
     }
     
     const validArticles = (articles || []).filter(a => a.headline && a.summary && a.url && a.datetime);
