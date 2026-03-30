@@ -235,11 +235,32 @@ async function getYahooBasicFinancials(symbol: string) {
 
 export async function getYahooNews(symbol: string) {
   try {
-    const query: any = await yahooFinance.search(symbol, { newsCount: 6 });
+    const profile = await getYahooCompanyProfile(symbol);
+    const companyName = profile?.name || symbol;
+
+    // Clean search targets (e.g. "RELIANCE.NS" -> "reliance", "One 97" -> "one")
+    const parsedSymbol = symbol.split('.')[0].toLowerCase();
+    const parsedName = companyName.split(/[\s,]+/)[0].toLowerCase();
+
+    // Fetch 20 max to guarantee enough buffer against padded generic news
+    const query: any = await yahooFinance.search(companyName, { newsCount: 20 });
+    
     if (query && query.news) {
-      return query.news.map((item: any) => ({
+      // Yahoo artificially pads local queries with unrelated global breaking headlines if it lacks direct news
+      // We explicitly scrub articles that don't mention the ticker/company directly
+      const relevantNews = query.news.filter((item: any) => {
+        const title = (item.title || '').toLowerCase();
+        const publisher = (item.publisher || '').toLowerCase();
+        
+        // Match base symbol or the first valid word of the company name
+        return title.includes(parsedSymbol) || 
+               title.includes(parsedName) || 
+               publisher.includes(parsedName);
+      }).slice(0, 6);
+
+      return relevantNews.map((item: any) => ({
         category: 'company',
-        datetime: item.providerPublishTime,
+        datetime: Math.floor(new Date(item.providerPublishTime).getTime() / 1000),
         headline: item.title,
         id: item.uuid || Math.random().toString(),
         image: item.thumbnail?.resolutions?.[0]?.url || '',

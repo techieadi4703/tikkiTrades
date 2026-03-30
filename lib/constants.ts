@@ -174,9 +174,40 @@ export const MARKET_DATA_WIDGET_CONFIG = {
 
 const mapTradingViewSymbol = (symbol: string) => {
     const s = symbol.toUpperCase();
-    if (s.endsWith('.NS')) return `BSE:${s.replace('.NS', '')}`;
-    if (s.endsWith('.BO')) return `BSE:${s.replace('.BO', '')}`;
-    if (s.endsWith('.L')) return `LSE:${s.replace('.L', '')}`;
+    
+    // TradingView requires specific exchange prefixes instead of Yahoo suffixes
+    const exchangeMap: Record<string, string> = {
+        '.NS': 'BSE:',      // Force BSE since TradingView restricts free widget access to NSE
+        '.BO': 'BSE:',
+        '.L': 'LSE:',
+        '.VI': 'VIE:',     // Vienna
+        '.TO': 'TSX:',     // Toronto
+        '.DE': 'XETR:',    // Germany
+        '.PA': 'EURONEXT:',// Paris
+        '.AS': 'EURONEXT:',// Amsterdam
+        '.MX': 'BMV:',     // Mexico
+        '.SA': 'BMFBOVESPA:', // Brazil
+        '.HK': 'HKEX:',    // Hong Kong
+        '.T': 'TSE:',      // Tokyo
+        '.AX': 'ASX:',     // Australia
+        '.SS': 'SSE:',     // Shanghai
+        '.SZ': 'SZSE:',    // Shenzhen
+        '.KS': 'KRX:',     // Korea
+        '.TW': 'TWSE:',    // Taiwan
+        '.SG': 'SGX:',     // Singapore
+    };
+
+    for (const [suffix, prefix] of Object.entries(exchangeMap)) {
+        if (s.endsWith(suffix)) {
+            return `${prefix}${s.replace(suffix, '')}`;
+        }
+    }
+
+    // Default fallback: strip unknown suffixes and let TradingView auto-resolve
+    if (s.includes('.')) {
+        return s.split('.')[0];
+    }
+    
     return s;
 };
 
