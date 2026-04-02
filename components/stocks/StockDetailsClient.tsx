@@ -97,13 +97,13 @@ export default function StockDetailsClient({
         </div>
 
         {/* Right column (Sentinel Score + News Feed) */}
-        <div className="xl:col-span-1 flex flex-col gap-8 h-full w-full">
+        <div className="xl:col-span-1 flex flex-col gap-8 w-full">
           {newsFeedNode && (
             <motion.div
               initial={{ x: 20, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
               transition={{ delay: 0.3 }}
-              className="w-full h-full flex flex-col"
+              className="w-full h-fit flex flex-col"
             >
               {newsFeedNode}
             </motion.div>
