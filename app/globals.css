@@ -146,10 +146,10 @@
     @apply mx-auto max-w-screen-2xl px-4 md:px-6 lg:px-8;
   }
   .emerald-btn {
-    @apply h-12 cursor-pointer bg-gradient-to-b from-emerald-400 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-black font-medium text-base rounded-lg shadow-[0_0_20px_rgba(16,185,129,0.2)] disabled:opacity-50 transition-all;
+    @apply min-h-[44px] h-fit py-2.5 cursor-pointer bg-gradient-to-b from-emerald-400 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-black font-medium text-sm rounded-lg shadow-[0_0_20px_rgba(16,185,129,0.2)] disabled:opacity-50 transition-all;
   }
   .emerald-remove {
-    @apply h-12 cursor-pointer bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/20 font-medium text-base rounded-lg transition-all;
+    @apply min-h-[44px] h-fit py-2.5 cursor-pointer bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/20 font-medium text-sm rounded-lg transition-all;
   }
   .home-wrapper {
     @apply text-gray-400 flex-col gap-4 md:gap-10 items-center sm:items-start;

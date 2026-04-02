@@ -10,6 +10,7 @@ const WatchlistButton = ({
   showTrashIcon = false,
   type = "button",
   onRemove,
+  compact = false,
 }: {
   symbol: string;
   company: string;
@@ -17,15 +18,19 @@ const WatchlistButton = ({
   showTrashIcon?: boolean;
   type?: "button" | "icon";
   onRemove?: (symbol: string) => void;
+  compact?: boolean;
 }) => {
   const [added, setAdded] = useState<boolean>(!!isInWatchlist);
 
   const label = useMemo(() => {
     if (type === "icon") return "";
+    if (compact) return added ? "Remove" : "Add";
     return added ? "Remove from Watchlist" : "Add to Watchlist";
-  }, [added, type]);
+  }, [added, type, compact]);
 
-  const handleClick = async () => {
+  const handleClick = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
     const next = !added;
     setAdded(next);
 
@@ -53,7 +58,7 @@ const WatchlistButton = ({
     <motion.button 
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
-      className={`w-full sm:w-[240px] px-6 ${added ? "emerald-remove" : "emerald-btn"}`} 
+      className={`w-full ${compact ? "px-3 py-1.5 text-xs" : "px-6 sm:min-w-[200px]"} ${added ? "emerald-remove" : "emerald-btn"}`} 
       onClick={handleClick}
     >
       {label}

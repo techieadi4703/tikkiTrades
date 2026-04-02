@@ -255,6 +255,7 @@ export default function WatchlistClient({
                           company={item.company}
                           isInWatchlist
                           onRemove={handleRemove}
+                          compact
                         />
                       </div>
                     </div>
