@@ -31,7 +31,7 @@ export default function RootLayout({
       >
         <AnimatedBackground />
         {children}
-        <Toaster />
+        <Toaster position="bottom-left" />
       </body>
     </html>
   );

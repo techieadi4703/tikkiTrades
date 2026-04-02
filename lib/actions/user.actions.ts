@@ -10,7 +10,7 @@ export const getAllUsersForNewsEmail = async () => {
 
         const users = await db.collection('user').find(
             { email: { $exists: true, $ne: null }},
-            { projection: { _id: 1, id: 1, email: 1, name: 1, country:1 }}
+            { projection: { _id: 1, id: 1, email: 1, name: 1 }}
         ).toArray();
 
         return users.filter((user) => user.email && user.name).map((user) => ({

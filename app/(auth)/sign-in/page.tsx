@@ -2,6 +2,9 @@
 
 import { motion } from "framer-motion";
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { SignInSchema } from "@/lib/validations/auth";
 import { Button } from "@/components/ui/button";
 import InputField from "@/components/forms/InputField";
 import FooterLink from "@/components/forms/FooterLink";
@@ -15,7 +18,8 @@ const SignIn = () => {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<SignInFormData>({
+  } = useForm<z.infer<typeof SignInSchema>>({
+    resolver: zodResolver(SignInSchema),
     defaultValues: {
       email: "",
       password: "",
@@ -23,16 +27,17 @@ const SignIn = () => {
     mode: "onBlur",
   });
 
-  const onSubmit = async (data: SignInFormData) => {
+  const onSubmit = async (data: z.infer<typeof SignInSchema>) => {
     const result = await signInWithEmail(data);
 
     if (!result.success) {
       toast.error("Sign in failed", {
-        description: result.error || "Invalid email or password",
+        description: result.error,
       });
       return;
     }
 
+    toast.success("Welcome back!");
     router.push("/");
   };
 

@@ -2,15 +2,11 @@
 
 import { motion } from "framer-motion";
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { SignUpSchema } from "@/lib/validations/auth";
 import { Button } from "@/components/ui/button";
 import InputField from "@/components/forms/InputField";
-import SelectField from "@/components/forms/SelectField";
-import {
-  INVESTMENT_GOALS,
-  PREFERRED_INDUSTRIES,
-  RISK_TOLERANCE_OPTIONS,
-} from "@/lib/constants";
-import { CountrySelectField } from "@/components/forms/CountrySelectField";
 import FooterLink from "@/components/forms/FooterLink";
 import { signUpWithEmail } from "@/lib/actions/auth.actions";
 import { useRouter } from "next/navigation";
@@ -22,7 +18,8 @@ const SignUp = () => {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<SignUpFormData>({
+  } = useForm<z.infer<typeof SignUpSchema>>({
+    resolver: zodResolver(SignUpSchema),
     defaultValues: {
       fullName: "",
       email: "",
@@ -31,16 +28,24 @@ const SignUp = () => {
     mode: "onBlur",
   });
 
-  const onSubmit = async (data: SignUpFormData) => {
+  const onSubmit = async (data: z.infer<typeof SignUpSchema>) => {
     const result = await signUpWithEmail(data);
 
     if (!result.success) {
+      const isUserExists = result.error?.toLowerCase().includes("user already exists");
+
       toast.error("Sign up failed", {
-        description: result.error || "Failed to create account",
+        description: isUserExists ? (
+          <div className="flex flex-col gap-1">
+            <span>User already exists.</span>
+            <span className="text-gray-400">Use another email or sign in to your account.</span>
+          </div>
+        ) : result.error,
       });
       return;
     }
 
+    toast.success("Account created successfully!");
     router.push("/");
   };
 
