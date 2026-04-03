@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner"
 import AnimatedBackground from "@/components/auth/AnimatedBackground";
+import { Analytics } from '@vercel/analytics/next';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,6 +33,7 @@ export default function RootLayout({
         <AnimatedBackground />
         {children}
         <Toaster position="bottom-left" />
+        <Analytics />
       </body>
     </html>
   );
