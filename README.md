@@ -1,10 +1,10 @@
 # 💹 Tikki Trades - Premium Market Analytics Platform
 
-Tikki Trades is a **production-ready financial terminal** designed for modern traders. It leverages **Next.js 15**, **Framer Motion**, and **TradingView Intelligence** to deliver a high-performance, interactive, and visually stunning market analysis experience.
+Tikki Trades is a **production-ready financial terminal** designed for modern traders. It leverages **Next.js 16**, **Framer Motion**, and **Multi-LLM Intelligence** (Gemini & Groq) to deliver a high-performance, interactive, and visually stunning market analysis experience.
 
 
-> **🏆 Premium Trading Terminal - Complete UI/UX Overhaul**  
-> Rebranded from legacy systems to a cohesive "Emerald-on-Black" aesthetic with a 100% viewport-optimized layout and AI-powered insights.
+> **🏆 Premium Trading Terminal - Complete AI-First Overhaul**  
+> Rebranded to a cohesive "Emerald-on-Black" aesthetic with a 100% viewport-optimized layout and professional-grade AI coaching.
 
 ## 🏁 Full Platform Walkthrough
 
@@ -23,7 +23,7 @@ Tikki Trades is built on a modular, multi-layered architecture designed for visu
 ### **1. Visual Identity Layer**
 - **Brand Identity**: Defines and manages all user-facing brand elements and layout patterns.
 - **Color Palette**: A curated emerald-on-black system (`#10b981`) for professional financial aesthetics.
-- **Modern Web Interface**: Responsive layout grid with defined font hierarchy (`Poppins` for headings/body) to ensure readability across devices.
+- **Modern Web Interface**: Responsive layout grid with the **Geist** font family (Sans/Mono) for high-performance readability across devices.
 
 ### **2. UX Engine Layer**
 - **Orchestrated Animations**: State-driven transitions, feedback, and interactive elements powered by Framer Motion.
@@ -31,10 +31,10 @@ Tikki Trades is built on a modular, multi-layered architecture designed for visu
 - **Smooth Transitions**: Optimized, seamless page loading with pre-fetching for rapid navigation.
 
 ### **3. Feature Modules Layer**
-- **Watchlist Intelligence**: Customizable real-time price tracking with personalized market alerts and optimistic UI updates.
-- **AI Chatbot**: Intelligent trade and support assistant for FAQs and trade queries.
-- **Stock Analytics**: In-depth market analysis with technical indicator integration and pattern recognition.
-- **Portfolio Management**: User-centric data streaming for ultra-low latency price updates.
+- **Watchlist Assistant**: Real-time asset queries and market analysis powered by **Groq (Llama 3.3 70B)**.
+- **AI Trade Coach**: Intelligent trade journaling and bias detection powered by **Gemini 2.5 Flash**.
+- **Portfolio Intelligence**: Real-time holding tracking with unrealized PnL analysis and growth metrics.
+- **Technical Analytics**: Professional-grade charting and gauge indicators via **TradingView** and **Yahoo Finance**.
 
 ---
 
@@ -42,28 +42,29 @@ Tikki Trades is built on a modular, multi-layered architecture designed for visu
 
 | Feature                              | Implementation Details                                                                 | Status |
 | ------------------------------------ | -------------------------------------------------------------------------------------- | ------ |
-| **🎨 Emerald Rebranding**             | 100% theme unification with custom CSS variables and UI tokens                        | ✅      |
-| **📏 Viewport Excellence**           | Dashboard layouts locked to `h-screen` to prevent scrolling fatigue                    | ✅      |
-| **✨ Staggered Orchestration**       | Premium entrance animations (Container/Item variants) for all form fields              | ✅      |
-| **🤖 AI Sidebar Assistant**          | Context-aware chatbot with auto-scrolling conversation history                         | ✅      |
-| **🌐 Global Grid Background**        | Interactive, pulsing grid system consistent across all application routes              | ✅      |
+| **🎨 Emerald Rebranding**             | 100% theme unification with custom CSS variables and Tailwind 4 tokens                | ✅      |
+| **🧠 AI Trade Coach**                | Direct-to-Gemini integration for unbiased trade journal reviews and thesis scoring     | ✅      |
+| **💬 Watchlist Assistant**           | Context-aware asset queries powered by Groq (Llama 3.3 70B) for instant market news    | ✅      |
+| **💼 Portfolio Tracker**             | Live PnL analysis with real-time price updates via Finnhub/Yahoo Finance               | ✅      |
 | **📈 Technical Analytics**           | Real-time gauge indicators and technical analysis summaries on stock pages             | ✅      |
 | **🗂️ Optimistic UI**                | Instant feedback on asset removal with slide-out animation transitions                | ✅      |
-| **🛠️ Hydration Stability**           | Resolved all server/client boundary mismatches for production stability                | ✅      |
+| **🛠️ Framework Excellence**          | Next.js 16 (App Router) + React 19 for maximum performance and hydration stability    | ✅      |
 
 ---
 
 ## 🛠️ Tech Stack
 
 ```
-Framework:        Next.js 15 (App Router)
-Styling:          Tailwind CSS (Glassmorphism & Custom Tokens)
+```
+Framework:        Next.js 16 (App Router)
+React:            React 19 (Server Actions & Canary features)
+Styling:          Tailwind CSS 4 (Modern JIT Engine & P3 Colors)
 Animations:       Framer Motion (Orchestrated Staggers & Exits)
-Icons:            Lucide React
-State Management: React Hooks (useState, useEffect, useRef)
-Market Data:      TradingView Embedded Analytics
-Database:         MongoDB (Scalable NoSQL for User Profiles)
-Deployment:       Vercel Ready
+AI Engines:       Gemini 2.5 Flash, Groq (Llama 3.3 70B)
+Market Data:      Finnhub & Yahoo Finance (node-yahoo-finance2)
+Database:         MongoDB (NoSQL Cluster with Mongoose ODM)
+Authentication:   Better-Auth (Secure, Database-backed sessions)
+Orchestration:    Inngest (Event-Driven Background Jobs)
 ```
 
 ---
@@ -90,8 +91,8 @@ Authentication and Stock pages use staggered animation variants to guide the use
 - **Inputs**: Delayed by `0.1s` intervals
 - **CTA Button**: Scale effect on hover, delayed by `0.3s`
 
-### 3. AI Sidebar Interaction
-The "Watchlist Assistant" uses a `useRef` based auto-scroll hook to ensure the conversation remains current:
+### 3. AI Sidebar Interaction (Groq & Llama 3.3)
+The "Watchlist Assistant" leverages **Groq's Llama 3.3 70B** model via its high-performance OpenAI-compatible endpoint. It provides near-instantaneous analysis of watchlist data, using a `useRef` based auto-scroll hook to ensure the conversation remains fluid:
 ```javascript
 useEffect(() => {
   if (scrollRef.current) {
@@ -138,7 +139,15 @@ npm install
 ```
 
 ### 2. Configure Environment
-Create a `.env.local` file and add your necessary API keys (if applicable for data providers).
+Create a `.env.local` file and add the following keys:
+```bash
+NEXT_PUBLIC_FINNHUB_API_KEY=your_key
+GEMINI_API_KEY=your_key
+GROQ_API_KEY=your_key
+MONGODB_URI=your_uri
+BETTER_AUTH_SECRET=your_secret
+BETTER_AUTH_URL=http://localhost:3000
+```
 
 ### 3. Launch Development Server
 ```bash
@@ -162,12 +171,19 @@ The platform's "brain" for asynchronous tasks is **Inngest**, which handles:
 - **Onboarding Intelligence**: Event-driven emails triggered when a new user signs up, utilizing **Gemini AI** to personalize the welcome message based on the user's investment goals.
 - **Reliability**: Automatic retries and event-driven architecture ensure no data is lost during network blips.
 
-### **3. Market Data Intelligence (Finnhub)**
-Real-time financial data is sourced through the **Finnhub API**:
-- **News Aggregation**: Fetching the latest market-moving headlines for specific symbols or global categories.
-- **Symbol Resolution**: Mapping user search queries to valid exchange-listed tickers.
+### **3. Market Data & Portfolio (Finnhub & Yahoo Finance)**
+The platform uses a hybrid approach to ensure reliable, high-fidelity data:
+- **Finnhub**: Provides the primary news stream, ticker sentiment, and real-time quote hooks.
+- **Yahoo Finance**: Integrated via `node-yahoo-finance2` for robust historical data and deep asset profiling.
+- **Portfolio Persistence**: User holdings are managed through a **Mongoose** schema in MongoDB, with real-time unrealized PnL calculation on the server.
 
-### **4. Interactive Analytics (TradingView)**
+### **4. AI Trade Coach (Gemini 2.5 Flash)**
+The "Journaling" engine utilizes **Gemini 2.5 Flash** to provide objective feedback on user trades:
+- **Bias Detection**: Automatically identifies common emotional pitfalls like FOMO or Revenge Trading.
+- **Thesis Scoring**: Scores the strength of the user's investment logic on a scale of 1-10.
+- **Risk Mitigation**: Highlights potential risks the user might have ignored based on market context.
+
+### **5. Interactive Analytics (TradingView)**
 We utilize the high-performance **TradingView Widget Ecosystem** for:
 - **Advanced Charting**: Professional-grade candle and baseline charts.
 - **Market Heatmaps**: Sector-specific visualizations of market cap and daily changes.
@@ -178,10 +194,10 @@ We utilize the high-performance **TradingView Widget Ecosystem** for:
 
 ## 💡 Business Impact
 
-- 🚀 **First Impression**: Premium staggered animations increase perceived platform quality.
-- ⚙️ **Efficiency**: Viewport-locked dashboards allow for faster data scanning without scrolling fatigue.
-- 😊 **User Retention**: Interactive AI sidebars provide immediate value-add for asset analysis.
+- 🚀 **First Impression**: Premium staggered animations and Geist typography increase perceived platform quality.
+- ⚙️ **Efficiency**: Viewport-locked dashboards and Tailwind 4's P3 color engine allow for high-focus data scanning.
+- 🧠 **Psychological Edge**: AI coaching provides users with a layer of objective feedback to improve emotional resilience.
 
 ---
 
-**Built with ❤️ for Modern Traders by Tikki Trades Team**
+**Built with ❤️ for Modern Traders by techieadi4703**
