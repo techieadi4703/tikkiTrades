@@ -89,6 +89,7 @@ graph TD
 - **AI Trade Coach**: Intelligent trade journaling and bias detection powered by **Gemini 2.5 Flash**.
 - **Portfolio Intelligence**: Real-time holding tracking with unrealized PnL analysis and growth metrics.
 - **Intelligent Mail Alerts**: Personalized onboarding, daily summaries, and 15-minute price sentinel alerts.
+- **Technical Analytics**: Professional-grade charting and gauge indicators via **TradingView** and **Yahoo Finance**.
 
 ---
 
@@ -140,6 +141,22 @@ The "Heartbeat" of the platform is an event-driven automation engine:
 - **Daily Market Pulse**: Scheduled every day at 12:00 PM UTC to send AI-summarized news for all symbols in a user's watchlist.
 - **Price Sentinel**: A 15-minute cron job that monitors market prices against user-defined targets, triggering immediate email and in-app notifications.
 
+### 3. Framer Motion Orchestration
+Authentication and Stock pages use staggered animation variants to guide the user's eye:
+- **Title**: `y: -20, opacity: 0` → `y: 0, opacity: 1`
+- **Inputs**: Delayed by `0.1s` intervals
+- **CTA Button**: Scale effect on hover, delayed by `0.3s`
+
+### 4. AI Sidebar Interaction (Groq & Llama 3.3)
+The "Watchlist Assistant" leverages **Groq's Llama 3.3 70B** model via its high-performance OpenAI-compatible endpoint. It provides near-instantaneous analysis of watchlist data, using a `useRef` based auto-scroll hook to ensure the conversation remains fluid:
+```javascript
+useEffect(() => {
+  if (scrollRef.current) {
+    scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+  }
+}, [messages]);
+```
+
 ---
 
 ## 📸 Visual Gallery
@@ -184,6 +201,50 @@ The "Heartbeat" of the platform is an event-driven automation engine:
    ```bash
    npm run dev
    ```
+   Platform available at: `http://localhost:3000`
+
+---
+
+## ⚙️ Technical Deep Dive
+
+### **1. Identity & Security (Better-Auth)**
+Tikki Trades uses **Better-Auth** for a secure, database-backed authentication system. It handles:
+- **Session Management**: Persistent, secure sessions across browser restarts.
+- **Account Security**: Encrypted password hashing and protected API routes.
+- **Lifecycle Events**: Hooks into the signup process to trigger onboarding workflows.
+
+### **2. Background Orchestration (Inngest)**
+The platform's "brain" for asynchronous tasks is **Inngest**, which handles:
+- **Daily Market Summary**: A scheduled job that fetches personalized news for each user at 12:00 PM UTC.
+- **Onboarding Intelligence**: Event-driven emails triggered when a new user signs up, utilizing **Gemini AI** to personalize the welcome message based on the user's investment goals.
+- **Reliability**: Automatic retries and event-driven architecture ensure no data is lost during network blips.
+
+### **3. Market Data & Portfolio (Finnhub & Yahoo Finance)**
+The platform uses a hybrid approach to ensure reliable, high-fidelity data:
+- **Finnhub**: Provides the primary news stream, ticker sentiment, and real-time quote hooks.
+- **Yahoo Finance**: Integrated via `node-yahoo-finance2` for robust historical data and deep asset profiling.
+- **Portfolio Persistence**: User holdings are managed through a **Mongoose** schema in MongoDB, with real-time unrealized PnL calculation on the server.
+
+### **4. AI Trade Coach (Gemini 2.5 Flash)**
+The "Journaling" engine utilizes **Gemini 2.5 Flash** to provide objective feedback on user trades:
+- **Bias Detection**: Automatically identifies common emotional pitfalls like FOMO or Revenge Trading.
+- **Thesis Scoring**: Scores the strength of the user's investment logic on a scale of 1-10.
+- **Risk Mitigation**: Highlights potential risks the user might have ignored based on market context.
+
+### **5. Interactive Analytics (TradingView)**
+We utilize the high-performance **TradingView Widget Ecosystem** for:
+- **Advanced Charting**: Professional-grade candle and baseline charts.
+- **Market Heatmaps**: Sector-specific visualizations of market cap and daily changes.
+- **Technical Gauges**: Real-time technical analysis indicators (Oscillators, Moving Averages) for "Buy/Sell" sentiment.
+- **Fundamentals**: Direct integration of company financial summaries and balance sheet data.
+
+---
+
+## 💡 Business Impact
+
+- 🚀 **First Impression**: Premium staggered animations and Geist typography increase perceived platform quality.
+- ⚙️ **Efficiency**: Viewport-locked dashboards and Tailwind 4's P3 color engine allow for high-focus data scanning.
+- 🧠 **Psychological Edge**: AI coaching provides users with a layer of objective feedback to improve emotional resilience.
 
 ---
 
