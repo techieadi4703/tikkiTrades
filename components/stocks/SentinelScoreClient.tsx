@@ -43,7 +43,7 @@ export default function SentinelScoreClient({ scoreData, onToggle }: { scoreData
   const strokeDashoffset = circumference - (animatedScore / 100) * circumference;
 
   return (
-    <div className="bg-secondary/50 backdrop-blur-xl border border-border rounded-2xl p-6 shadow-2xl flex flex-col items-center">
+    <div className="bg-card backdrop-blur-xl border border-border rounded-2xl p-6 shadow-2xl flex flex-col items-center">
       <div className="flex items-center gap-2 mb-6 w-full opacity-80">
         <Activity className="w-5 h-5 text-emerald-500" />
         <h3 className="text-sm font-bold text-foreground uppercase tracking-widest">AI Sentinel Score</h3>
@@ -92,7 +92,7 @@ export default function SentinelScoreClient({ scoreData, onToggle }: { scoreData
       <div className="w-full">
         <button
           onClick={handleToggle}
-          className="flex items-center justify-between w-full p-4 bg-secondary/50 hover:bg-secondary/50 transition-colors rounded-xl text-sm font-semibold text-foreground"
+          className="flex items-center justify-between w-full p-4 bg-secondary/80 hover:bg-secondary transition-colors rounded-xl text-sm font-semibold text-foreground"
         >
           <div className="flex items-center gap-2">
             <Info className="w-4 h-4 text-emerald-500" />
@@ -109,7 +109,7 @@ export default function SentinelScoreClient({ scoreData, onToggle }: { scoreData
               exit={{ height: 0, opacity: 0 }}
               className="overflow-hidden"
             >
-              <div className="pt-4 pb-2 space-y-4 max-h-[350px] overflow-y-auto custom-scrollbar pr-2">
+              <div className="pt-4 pb-2 space-y-4 max-h-[350px] overflow-y-auto scrollbar-thin scrollbar-thumb-muted-foreground/20 pr-2">
                 <p className="text-sm text-muted-foreground leading-relaxed px-2">
                   {rationale}
                 </p>

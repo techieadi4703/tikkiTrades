@@ -60,7 +60,7 @@ export default function NewsFeedClient({ articles }: NewsFeedClientProps) {
           href={article.url}
           target="_blank"
           rel="noopener noreferrer"
-          className="group flex flex-col justify-between bg-gray-800 border border-gray-600/50 hover:border-gray-500 rounded-xl p-4 sm:p-5 transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 min-w-[320px] max-w-[320px] shrink-0 snap-start"
+          className="group flex flex-col justify-between bg-card hover:bg-secondary/40 border border-border hover:border-emerald-500/30 rounded-xl p-4 sm:p-5 transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 min-w-[320px] max-w-[320px] shrink-0 snap-start"
         >
           <div className="flex gap-4">
             <div className="flex flex-col flex-1">
@@ -72,7 +72,7 @@ export default function NewsFeedClient({ articles }: NewsFeedClientProps) {
                   {article.sentiment}
                 </span>
               </div>
-              <h3 className="text-base sm:text-lg font-bold text-foreground group-hover:text-emerald-400 transition-colors leading-snug line-clamp-2">
+              <h3 className="text-base sm:text-lg font-bold text-foreground group-hover:text-emerald-500 transition-colors leading-snug line-clamp-2">
                 {article.headline}
               </h3>
               <p className="text-sm text-muted-foreground line-clamp-2 mt-2">
@@ -81,7 +81,7 @@ export default function NewsFeedClient({ articles }: NewsFeedClientProps) {
             </div>
           </div>
           
-          <div className="flex items-center justify-between text-xs text-muted-foreground mt-4 pt-4 border-t border-gray-700/50">
+          <div className="flex items-center justify-between text-xs text-muted-foreground mt-4 pt-4 border-t border-border">
             <div className="flex items-center gap-1.5 text-muted-foreground font-medium">
               <Clock className="w-3.5 h-3.5" />
               <span>{formatTimeAgo(article.datetime)}</span>

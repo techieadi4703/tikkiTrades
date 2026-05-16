@@ -48,7 +48,7 @@ const TypingIndicator = () => (
 const SuggestedQuestion = ({ question, onClick }: { question: string, onClick: (q: string) => void }) => (
   <button
     onClick={() => onClick(question)}
-    className="group flex items-center gap-2 whitespace-nowrap rounded-lg border border-border bg-secondary/30 px-3 py-1.5 text-[11px] font-medium text-muted-foreground transition-all hover:bg-emerald-500/10 hover:border-emerald-500/30 hover:text-emerald-400 active:scale-95"
+    className="group flex items-center gap-2 whitespace-nowrap rounded-lg border border-border bg-secondary/50 px-3 py-1.5 text-[11px] font-medium text-muted-foreground transition-all hover:bg-emerald-500/10 hover:border-emerald-500/30 hover:text-emerald-500 dark:hover:text-emerald-400 active:scale-95"
   >
     <HelpCircle size={12} className="text-muted-foreground group-hover:text-emerald-500" />
     {question}
@@ -104,7 +104,7 @@ const WatchlistChatbot = ({ data }: { data: WatchlistItem[] }) => {
   ];
 
   return (
-    <div className="flex flex-col h-full bg-black/40 backdrop-blur-2xl border border-border rounded-2xl overflow-hidden shadow-2xl relative">
+    <div className="flex flex-col h-full bg-card/80 backdrop-blur-2xl border border-border rounded-2xl overflow-hidden shadow-2xl relative">
       <div className="p-5 border-b border-border bg-secondary/30 flex items-center justify-between">
         <div className="flex items-center gap-3">
            <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">
@@ -122,7 +122,7 @@ const WatchlistChatbot = ({ data }: { data: WatchlistItem[] }) => {
 
       <div 
         ref={scrollRef}
-        className="flex-1 space-y-6 overflow-y-auto p-5 scrollbar-thin scrollbar-thumb-white/10 scroll-smooth"
+        className="flex-1 space-y-6 overflow-y-auto p-5 scrollbar-thin scrollbar-thumb-muted-foreground/20 scroll-smooth"
       >
         {messages.map((message, index) => (
           <motion.div
@@ -148,11 +148,11 @@ const WatchlistChatbot = ({ data }: { data: WatchlistItem[] }) => {
             <div
               className={
                 message.role === "user"
-                  ? "max-w-[85%] rounded-2xl rounded-tr-none bg-emerald-600 text-foreground px-4 py-3 text-sm font-medium shadow-xl shadow-emerald-900/20 border border-emerald-400/20"
-                  : "max-w-[85%] rounded-2xl rounded-tl-none bg-secondary/30 border border-border text-foreground px-4 py-3 text-sm leading-relaxed shadow-lg backdrop-blur-md"
+                  ? "max-w-[85%] rounded-2xl rounded-tr-none bg-emerald-600 text-white px-4 py-3 text-sm font-medium shadow-xl shadow-emerald-900/10 border border-emerald-400/20"
+                  : "max-w-[85%] rounded-2xl rounded-tl-none bg-secondary/50 border border-border text-foreground px-4 py-3 text-sm leading-relaxed shadow-sm backdrop-blur-md"
               }
             >
-              <div className="prose prose-invert prose-sm max-w-none prose-p:leading-relaxed prose-strong:text-emerald-400 prose-strong:font-black">
+              <div className="prose dark:prose-invert prose-sm max-w-none prose-p:leading-relaxed prose-strong:text-emerald-500 dark:prose-strong:text-emerald-400 prose-strong:font-black">
                 <ReactMarkdown 
                   components={{
                     table: ({node, ...props}) => <div className="overflow-x-auto my-2 rounded-lg border border-border"><table className="w-full text-xs" {...props} /></div>,
@@ -300,7 +300,7 @@ export default function WatchlistClient({
             <div className="text-center">Action</div>
           </div>
 
-          <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-white/10 divide-y divide-white/5">
+          <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-muted-foreground/20 divide-y divide-border">
             <AnimatePresence mode="popLayout" initial={false}>
               {data.map((item, idx) => {
                 const isUp = item.change >= 0;
