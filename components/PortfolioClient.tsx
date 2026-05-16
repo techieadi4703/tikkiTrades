@@ -24,7 +24,13 @@ const itemVariants: Variants = {
 
 const COLORS = ['#10b981', '#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', '#14b8a6', '#f43f5e', '#6366f1'];
 
-export default function PortfolioClient({ initialHoldings }: { initialHoldings: PortfolioHolding[] }) {
+export default function PortfolioClient({ 
+  initialHoldings, 
+  initialPaperAccount 
+}: { 
+  initialHoldings: PortfolioHolding[];
+  initialPaperAccount?: any;
+}) {
   const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -127,8 +133,19 @@ export default function PortfolioClient({ initialHoldings }: { initialHoldings: 
     );
   }, [optimisticHoldings]);
 
-  const totalPnL = totalValue - totalCost;
-  const totalPnLPercent = totalCost > 0 ? (totalPnL / totalCost) * 100 : 0;
+  const buyingPower = initialPaperAccount ? initialPaperAccount.buyingPower : 0;
+  const initialBalance = initialPaperAccount ? initialPaperAccount.initialBalance : 0;
+  
+  const totalNetWorth = totalValue + buyingPower;
+  
+  // Adjusted PnL including paper account starting balance
+  const totalPnL = initialPaperAccount 
+    ? (totalNetWorth - initialBalance) 
+    : (totalValue - totalCost);
+    
+  const totalPnLPercent = initialPaperAccount 
+    ? ((totalNetWorth - initialBalance) / initialBalance) * 100 
+    : (totalCost > 0 ? (totalPnL / totalCost) * 100 : 0);
 
   // Chart Data
   const chartData = useMemo(() => {
@@ -236,19 +253,28 @@ export default function PortfolioClient({ initialHoldings }: { initialHoldings: 
         )}
 
         {/* Top Overview Cards */}
-        <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {/* Card 1: Total Value */}
+        <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          
+          {/* Card 1: Total Net Worth */}
           <div className="bg-card border border-border rounded-2xl p-6 relative overflow-hidden group">
             <div className="absolute inset-0 bg-linear-to-br from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-            <p className="text-sm font-medium text-muted-foreground mb-1">Total Portfolio Value</p>
+            <p className="text-sm font-medium text-muted-foreground mb-1">Total Net Worth</p>
             <h2 className="text-4xl font-black text-foreground tracking-tight">
-              ${totalValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              ${totalNetWorth.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </h2>
           </div>
 
-          {/* Card 2: Total Unrealized P&L */}
+          {/* Card 2: Cash / Buying Power */}
           <div className="bg-card border border-border rounded-2xl p-6 relative overflow-hidden group">
-             <p className="text-sm font-medium text-muted-foreground mb-1">Overall P&L (Unrealized)</p>
+             <p className="text-sm font-medium text-muted-foreground mb-1">Available Cash (Buying Power)</p>
+             <h2 className="text-3xl font-bold tracking-tight text-blue-500">
+               ${buyingPower.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+             </h2>
+          </div>
+
+          {/* Card 3: Total Unrealized P&L */}
+          <div className="bg-card border border-border rounded-2xl p-6 relative overflow-hidden group">
+             <p className="text-sm font-medium text-muted-foreground mb-1">Overall P&L</p>
              <div className="flex items-baseline gap-3">
                <h2 className={`text-3xl font-bold tracking-tight ${totalPnL >= 0 ? 'text-emerald-500' : 'text-red-500'}`}>
                  {totalPnL >= 0 ? '+' : ''}${totalPnL.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
@@ -260,11 +286,11 @@ export default function PortfolioClient({ initialHoldings }: { initialHoldings: 
              </div>
           </div>
 
-          {/* Card 3: Today's Return */}
+          {/* Card 4: Invested Value */}
           <div className="bg-card border border-border rounded-2xl p-6 relative overflow-hidden group">
-             <p className="text-sm font-medium text-muted-foreground mb-1">Today's Profit / Loss</p>
-             <h2 className={`text-3xl font-bold tracking-tight ${totalDailyChange >= 0 ? 'text-emerald-500' : 'text-red-500'}`}>
-               {totalDailyChange >= 0 ? '+' : ''}${totalDailyChange.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+             <p className="text-sm font-medium text-muted-foreground mb-1">Invested in Assets</p>
+             <h2 className="text-3xl font-bold tracking-tight text-foreground">
+               ${totalValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
              </h2>
           </div>
         </motion.div>

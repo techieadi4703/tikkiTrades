@@ -5,9 +5,15 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { TrendingUp, TrendingDown, ChevronDown, ChevronUp, Info, Activity } from 'lucide-react';
 import { SentinelScore } from '@/database/models/newsCache.model';
 
-export default function SentinelScoreClient({ scoreData }: { scoreData?: SentinelScore }) {
+export default function SentinelScoreClient({ scoreData, onToggle }: { scoreData?: SentinelScore; onToggle?: (isOpen: boolean) => void }) {
   const [isOpen, setIsOpen] = useState(false);
   const [animatedScore, setAnimatedScore] = useState(0);
+
+  const handleToggle = () => {
+    const next = !isOpen;
+    setIsOpen(next);
+    onToggle?.(next);
+  };
 
   if (!scoreData) return null;
 
@@ -85,7 +91,7 @@ export default function SentinelScoreClient({ scoreData }: { scoreData?: Sentine
       {/* Collapsible Section */}
       <div className="w-full">
         <button
-          onClick={() => setIsOpen(!isOpen)}
+          onClick={handleToggle}
           className="flex items-center justify-between w-full p-4 bg-secondary/50 hover:bg-secondary/50 transition-colors rounded-xl text-sm font-semibold text-foreground"
         >
           <div className="flex items-center gap-2">

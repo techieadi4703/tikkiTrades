@@ -1,9 +1,8 @@
-import { Suspense } from "react";
 import { isInWatchlist } from "@/lib/actions/watchlist.actions";
 import { getCompanyProfile } from "@/lib/actions/finnhub.actions";
+import { getCompanyNewsWithSentiment } from "@/lib/actions/news.actions";
 import StockDetailsClient from "@/components/stocks/StockDetailsClient";
-import CompanyNewsFeed from "@/components/stocks/CompanyNewsFeed";
-import NewsSkeleton from "@/components/stocks/NewsSkeleton";
+import NewsFeedClient from "@/components/stocks/NewsFeedClient";
 
 export interface StockDetailsPageProps {
   params: Promise<{ symbol: string }>;
@@ -12,8 +11,14 @@ export interface StockDetailsPageProps {
 export default async function StockDetails({ params }: StockDetailsPageProps) {
   const { symbol } = await params;
   const upper = symbol.toUpperCase();
-  const alreadyInWatchlist = await isInWatchlist(upper);
-  const profile = await getCompanyProfile(upper);
+  
+  // Fetch data in parallel
+  const [alreadyInWatchlist, profile, newsData] = await Promise.all([
+    isInWatchlist(upper),
+    getCompanyProfile(upper),
+    getCompanyNewsWithSentiment(upper)
+  ]);
+  
   const companyName = profile?.name || upper;
 
   return (
@@ -22,11 +27,8 @@ export default async function StockDetails({ params }: StockDetailsPageProps) {
       upper={upper}
       companyName={companyName}
       alreadyInWatchlist={alreadyInWatchlist}
-      newsFeedNode={
-        <Suspense fallback={<NewsSkeleton />}>
-          <CompanyNewsFeed symbol={symbol} />
-        </Suspense>
-      }
+      newsFeedNode={<NewsFeedClient articles={newsData.articles} />}
+      sentinelScoreData={newsData.score}
     />
   );
 }

@@ -1,11 +1,14 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { TrendingUp } from "lucide-react";
 import TradingViewWidget from "@/components/TradingViewWidget";
 import WatchlistButton from "@/components/WatchlistButton";
 import AddAlertModal from "@/components/stocks/AddAlertModal";
+import TradeTicket from "@/components/stocks/TradeTicket";
+import SentinelScoreClient from "@/components/stocks/SentinelScoreClient";
+import { SentinelScore } from "@/database/models/newsCache.model";
 import {
   SYMBOL_INFO_WIDGET_CONFIG,
   CANDLE_CHART_WIDGET_CONFIG,
@@ -21,6 +24,7 @@ interface StockDetailsClientProps {
   companyName: string;
   alreadyInWatchlist: boolean;
   newsFeedNode?: React.ReactNode;
+  sentinelScoreData?: SentinelScore;
 }
 
 export default function StockDetailsClient({
@@ -29,8 +33,10 @@ export default function StockDetailsClient({
   companyName,
   alreadyInWatchlist,
   newsFeedNode,
+  sentinelScoreData,
 }: StockDetailsClientProps) {
   const scriptUrl = `https://s3.tradingview.com/external-embedding/embed-widget-`;
+  const [isSentinelOpen, setIsSentinelOpen] = useState(false);
 
   return (
     <motion.div
@@ -67,7 +73,7 @@ export default function StockDetailsClient({
       {/* Main Dashboard Grid */}
       <motion.section className="grid grid-cols-1 xl:grid-cols-3 gap-8 w-full">
         {/* Left column (Chart + Overview) */}
-        <div className="xl:col-span-2 flex flex-col gap-8">
+        <div className="xl:col-span-2 flex flex-col gap-8 overflow-visible">
           <motion.div
             initial={{ x: -20, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
@@ -94,18 +100,49 @@ export default function StockDetailsClient({
               height={640}
             />
           </motion.div>
+
+          {/* News Feed — expands to full width when sentinel closed */}
+          {newsFeedNode && (
+            <motion.div
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ 
+                y: 0, 
+                opacity: 1,
+                width: isSentinelOpen ? '100%' : 'calc(150% + 2rem)',
+              }}
+              transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+              className="flex flex-col"
+            >
+              <div className="flex items-center gap-3 mb-6 shrink-0">
+                <div className="h-8 w-1 bg-emerald-500 rounded-full"></div>
+                <h2 className="text-xl xl:text-2xl font-bold text-foreground tracking-tight">
+                  Latest News & Sentiment
+                </h2>
+              </div>
+              {newsFeedNode}
+            </motion.div>
+          )}
         </div>
 
-        {/* Right column (Sentinel Score + News Feed) */}
+        {/* Right column (Trade Ticket + Sentinel Score) */}
         <div className="xl:col-span-1 flex flex-col gap-8 w-full">
-          {newsFeedNode && (
+          {/* Trade Ticket */}
+          <motion.div
+            initial={{ x: 20, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ delay: 0.1 }}
+          >
+            <TradeTicket symbol={symbol.toUpperCase()} />
+          </motion.div>
+
+          {sentinelScoreData && (
             <motion.div
               initial={{ x: 20, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
-              transition={{ delay: 0.3 }}
+              transition={{ delay: 0.2 }}
               className="w-full h-fit flex flex-col"
             >
-              {newsFeedNode}
+              <SentinelScoreClient scoreData={sentinelScoreData} onToggle={setIsSentinelOpen} />
             </motion.div>
           )}
         </div>

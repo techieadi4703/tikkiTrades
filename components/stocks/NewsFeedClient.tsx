@@ -51,7 +51,7 @@ export default function NewsFeedClient({ articles }: NewsFeedClientProps) {
       variants={container}
       initial="hidden"
       animate="show"
-      className="flex flex-col gap-4"
+      className="flex flex-row overflow-x-auto gap-4 pb-4 snap-x snap-mandatory scrollbar-hide-default"
     >
       {articles.map((article) => (
         <motion.a
@@ -60,7 +60,7 @@ export default function NewsFeedClient({ articles }: NewsFeedClientProps) {
           href={article.url}
           target="_blank"
           rel="noopener noreferrer"
-          className="group flex flex-col justify-between bg-gray-800 border border-gray-600/50 hover:border-gray-500 rounded-xl p-4 sm:p-5 transition-all duration-300 hover:shadow-2xl hover:-translate-y-1"
+          className="group flex flex-col justify-between bg-gray-800 border border-gray-600/50 hover:border-gray-500 rounded-xl p-4 sm:p-5 transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 min-w-[320px] max-w-[320px] shrink-0 snap-start"
         >
           <div className="flex gap-4">
             <div className="flex flex-col flex-1">

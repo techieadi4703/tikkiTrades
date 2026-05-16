@@ -9,10 +9,13 @@ import NotificationBell from './NotificationBell'
 import { getUnreadNotifications } from '@/lib/actions/notification.actions'
 import { ThemeToggle } from './ThemeToggle'
 import { MobileNav } from './MobileNav'
+import PaperBalanceWidget from './PaperBalanceWidget'
+import { getPaperAccount } from '@/lib/actions/brokerage.actions'
 
-const Header =async ({user}:{user:User}) => {
+const Header =async ({user}:{user:User}) =>{
     const initialStocks=await searchStocks();
     const notifications = user?.id ? await getUnreadNotifications(user.id) : [];
+    const paperAccount = user?.id ? await getPaperAccount() : null;
   return (
     <header className='sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b border-border'>
         <div className='container flex justify-between items-center px-6 py-4'>
@@ -27,6 +30,7 @@ const Header =async ({user}:{user:User}) => {
             </nav>
             <div className="flex items-center gap-2">
                 <MobileNav initialStocks={initialStocks} />
+                {user && <PaperBalanceWidget initialAccount={paperAccount} />}
                 <ThemeToggle />
                 {user && <NotificationBell userId={user.id} initialNotifications={notifications} />}
                 <UserDropdown user={user} initialStocks={initialStocks}/>
