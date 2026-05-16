@@ -48,10 +48,10 @@ export default function StockDetailsClient({
             <TrendingUp className="w-6 h-6 text-emerald-500" />
           </div>
           <div>
-            <h1 className="text-3xl font-bold text-white tracking-tight">
+            <h1 className="text-3xl font-bold text-foreground tracking-tight">
               {upper}
             </h1>
-            <p className="text-gray-500 text-sm font-medium">{companyName}</p>
+            <p className="text-muted-foreground text-sm font-medium">{companyName}</p>
           </div>
         </div>
         <div className="flex items-center gap-3">
@@ -72,7 +72,7 @@ export default function StockDetailsClient({
             initial={{ x: -20, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             transition={{ delay: 0.1 }}
-            className="bg-white/2 backdrop-blur-xl border border-white/5 rounded-2xl overflow-hidden shadow-2xl p-1"
+            className="bg-secondary/50 backdrop-blur-xl border border-border rounded-2xl overflow-hidden shadow-2xl p-1"
           >
             <TradingViewWidget
               scriptUrl={`${scriptUrl}symbol-info.js`}
@@ -85,7 +85,7 @@ export default function StockDetailsClient({
             initial={{ x: -20, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             transition={{ delay: 0.2 }}
-            className="bg-white/2 backdrop-blur-xl border border-white/5 rounded-2xl overflow-hidden shadow-2xl p-1"
+            className="bg-secondary/50 backdrop-blur-xl border border-border rounded-2xl overflow-hidden shadow-2xl p-1"
           >
             <TradingViewWidget
               scriptUrl={`${scriptUrl}advanced-chart.js`}
@@ -127,7 +127,7 @@ export default function StockDetailsClient({
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: item.d + 0.4 }}
-            className="bg-white/2 backdrop-blur-xl border border-white/5 rounded-2xl overflow-hidden shadow-2xl p-1 w-full"
+            className="bg-secondary/50 backdrop-blur-xl border border-border rounded-2xl overflow-hidden shadow-2xl p-1 w-full"
           >
             <TradingViewWidget
               scriptUrl={`${scriptUrl}${item.tag}`}
@@ -149,7 +149,7 @@ export default function StockDetailsClient({
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.6 }}
-          className="bg-white/2 backdrop-blur-xl border border-white/5 rounded-2xl overflow-hidden shadow-2xl p-1 w-full"
+          className="bg-secondary/50 backdrop-blur-xl border border-border rounded-2xl overflow-hidden shadow-2xl p-1 w-full"
         >
           <TradingViewWidget
             scriptUrl={`${scriptUrl}advanced-chart.js`}

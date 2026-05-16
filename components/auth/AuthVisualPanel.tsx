@@ -54,24 +54,24 @@ const AuthVisualPanel = () => {
   return (
     <section className="hidden lg:flex flex-col gap-6 pl-8 h-full justify-center max-h-full overflow-hidden">
       <div className="space-y-2">
-        <h2 className="text-3xl lg:text-4xl font-bold text-white leading-tight">
+        <h2 className="text-3xl lg:text-4xl font-bold text-foreground leading-tight">
           Trade with <span className="text-green-400">Confidence</span>,
           <br />
           Analyze with <span className="text-emerald-400">Precision.</span>
         </h2>
-        <p className="text-gray-400 text-sm max-w-md">
+        <p className="text-muted-foreground text-sm max-w-md">
           Join thousands of traders using TikkiTrades to transform their market insights into winning strategies.
         </p>
       </div>
 
       <div className="space-y-4">
-        <div className="bg-black/40 backdrop-blur-md border border-white/10 p-4 rounded-xl space-y-3 shadow-xl">
-          <div className="flex justify-between items-center text-gray-400">
+        <div className="bg-black/40 backdrop-blur-md border border-border p-4 rounded-xl space-y-3 shadow-xl">
+          <div className="flex justify-between items-center text-muted-foreground">
             <div className="flex flex-col">
                <span className="text-[10px] font-medium uppercase tracking-widest opacity-60">Market Analysis</span>
-               <span className="text-sm text-white font-bold">{activeTrade.symbol}</span>
+               <span className="text-sm text-foreground font-bold">{activeTrade.symbol}</span>
             </div>
-            <span className="flex items-center gap-2 bg-black/60 px-2 py-0.5 rounded-full border border-white/5">
+            <span className="flex items-center gap-2 bg-black/60 px-2 py-0.5 rounded-full border border-border">
               <span className={`w-1.5 h-1.5 rounded-full animate-pulse`} style={{ backgroundColor: activeTrade.color }} />
               <span className="text-[9px] font-mono" style={{ color: activeTrade.color }}>LIVE FEED</span>
             </span>
@@ -94,7 +94,7 @@ const AuthVisualPanel = () => {
       </div>
 
       {/* Testimonial Carousel */}
-      <div className="pt-4 border-t border-white/10">
+      <div className="pt-4 border-t border-border">
         <AnimatePresence mode="wait">
           <motion.div
             key={testimonialIndex}
@@ -103,16 +103,16 @@ const AuthVisualPanel = () => {
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.4 }}
           >
-            <blockquote className="text-base text-gray-300 italic mb-4 leading-relaxed line-clamp-2">
+            <blockquote className="text-base text-foreground italic mb-4 leading-relaxed line-clamp-2">
               "{testimonial.quote}"
             </blockquote>
             <div className="flex items-center gap-3">
-              <div className={`w-10 h-10 rounded-full bg-gradient-to-tr ${testimonial.color} shadow-lg shadow-white/5 flex items-center justify-center text-white text-sm font-bold`}>
+              <div className={`w-10 h-10 rounded-full bg-linear-to-tr ${testimonial.color} shadow-lg shadow-white/5 flex items-center justify-center text-foreground text-sm font-bold`}>
                 {testimonial.name.split(' ')[0][0]}{testimonial.name.split(' ')[1][0]}
               </div>
               <div>
-                <cite className="text-white text-sm font-semibold block not-italic">{testimonial.name}</cite>
-                <p className="text-gray-500 text-xs">{testimonial.role}</p>
+                <cite className="text-foreground text-sm font-semibold block not-italic">{testimonial.name}</cite>
+                <p className="text-muted-foreground text-xs">{testimonial.role}</p>
               </div>
             </div>
           </motion.div>

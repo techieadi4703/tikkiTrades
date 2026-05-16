@@ -37,10 +37,10 @@ export default function SentinelScoreClient({ scoreData }: { scoreData?: Sentine
   const strokeDashoffset = circumference - (animatedScore / 100) * circumference;
 
   return (
-    <div className="bg-white/2 backdrop-blur-xl border border-white/5 rounded-2xl p-6 shadow-2xl flex flex-col items-center">
+    <div className="bg-secondary/50 backdrop-blur-xl border border-border rounded-2xl p-6 shadow-2xl flex flex-col items-center">
       <div className="flex items-center gap-2 mb-6 w-full opacity-80">
         <Activity className="w-5 h-5 text-emerald-500" />
-        <h3 className="text-sm font-bold text-gray-300 uppercase tracking-widest">AI Sentinel Score</h3>
+        <h3 className="text-sm font-bold text-foreground uppercase tracking-widest">AI Sentinel Score</h3>
       </div>
 
       {/* Circular Gauge */}
@@ -53,7 +53,7 @@ export default function SentinelScoreClient({ scoreData }: { scoreData?: Sentine
             stroke="currentColor"
             strokeWidth="8"
             fill="transparent"
-            className="text-white/10"
+            className="text-foreground/10"
           />
           <motion.circle
             cx="70"
@@ -74,7 +74,7 @@ export default function SentinelScoreClient({ scoreData }: { scoreData?: Sentine
           <span className={`text-4xl font-black ${styleParams.text} tracking-tighter`}>
             {animatedScore}
           </span>
-          <span className="text-[10px] text-gray-500 font-medium uppercase mt-1 tracking-wider">/ 100</span>
+          <span className="text-[10px] text-muted-foreground font-medium uppercase mt-1 tracking-wider">/ 100</span>
         </div>
       </div>
 
@@ -86,7 +86,7 @@ export default function SentinelScoreClient({ scoreData }: { scoreData?: Sentine
       <div className="w-full">
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="flex items-center justify-between w-full p-4 bg-white/5 hover:bg-white/10 transition-colors rounded-xl text-sm font-semibold text-gray-300"
+          className="flex items-center justify-between w-full p-4 bg-secondary/50 hover:bg-secondary/50 transition-colors rounded-xl text-sm font-semibold text-foreground"
         >
           <div className="flex items-center gap-2">
             <Info className="w-4 h-4 text-emerald-500" />
@@ -104,7 +104,7 @@ export default function SentinelScoreClient({ scoreData }: { scoreData?: Sentine
               className="overflow-hidden"
             >
               <div className="pt-4 pb-2 space-y-4 max-h-[350px] overflow-y-auto custom-scrollbar pr-2">
-                <p className="text-sm text-gray-400 leading-relaxed px-2">
+                <p className="text-sm text-muted-foreground leading-relaxed px-2">
                   {rationale}
                 </p>
 
@@ -116,7 +116,7 @@ export default function SentinelScoreClient({ scoreData }: { scoreData?: Sentine
                     </div>
                     <ul className="space-y-2">
                       {bulls?.map((bull, i) => (
-                        <li key={i} className="text-xs text-gray-300 flex gap-2">
+                        <li key={i} className="text-xs text-foreground flex gap-2">
                           <span className="text-emerald-500 mt-0.5">•</span>
                           <span className="leading-relaxed">{bull}</span>
                         </li>
@@ -131,7 +131,7 @@ export default function SentinelScoreClient({ scoreData }: { scoreData?: Sentine
                     </div>
                     <ul className="space-y-2">
                       {bears?.map((bear, i) => (
-                        <li key={i} className="text-xs text-gray-300 flex gap-2">
+                        <li key={i} className="text-xs text-foreground flex gap-2">
                           <span className="text-red-500 mt-0.5">•</span>
                           <span className="leading-relaxed">{bear}</span>
                         </li>

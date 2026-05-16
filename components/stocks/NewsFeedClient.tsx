@@ -13,9 +13,9 @@ interface NewsFeedClientProps {
 export default function NewsFeedClient({ articles }: NewsFeedClientProps) {
   if (!articles || articles.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center p-8 bg-white/2 border border-white/5 rounded-2xl">
-        <Newspaper className="w-12 h-12 text-gray-500 mb-4" />
-        <p className="text-gray-400">No recent company news found.</p>
+      <div className="flex flex-col items-center justify-center p-8 bg-secondary/50 border border-border rounded-2xl">
+        <Newspaper className="w-12 h-12 text-muted-foreground mb-4" />
+        <p className="text-muted-foreground">No recent company news found.</p>
       </div>
     );
   }
@@ -42,7 +42,7 @@ export default function NewsFeedClient({ articles }: NewsFeedClientProps) {
       case 'Negative':
         return 'bg-red-500/10 text-red-500 border-red-500/20';
       default:
-        return 'bg-gray-500/10 text-gray-400 border-gray-500/20';
+        return 'bg-gray-500/10 text-muted-foreground border-gray-500/20';
     }
   };
 
@@ -65,24 +65,24 @@ export default function NewsFeedClient({ articles }: NewsFeedClientProps) {
           <div className="flex gap-4">
             <div className="flex flex-col flex-1">
               <div className="flex items-center flex-wrap gap-2.5 mb-2">
-                <span className="text-[11px] font-bold text-gray-400 tracking-wider uppercase">
+                <span className="text-[11px] font-bold text-muted-foreground tracking-wider uppercase">
                   {article.source}
                 </span>
                 <span className={`text-[10px] px-2 py-0.5 rounded border ${getSentimentStyles(article.sentiment)} font-semibold tracking-wide uppercase`}>
                   {article.sentiment}
                 </span>
               </div>
-              <h3 className="text-base sm:text-lg font-bold text-gray-100 group-hover:text-emerald-400 transition-colors leading-snug line-clamp-2">
+              <h3 className="text-base sm:text-lg font-bold text-foreground group-hover:text-emerald-400 transition-colors leading-snug line-clamp-2">
                 {article.headline}
               </h3>
-              <p className="text-sm text-gray-400 line-clamp-2 mt-2">
+              <p className="text-sm text-muted-foreground line-clamp-2 mt-2">
                 {article.summary}
               </p>
             </div>
           </div>
           
-          <div className="flex items-center justify-between text-xs text-gray-500 mt-4 pt-4 border-t border-gray-700/50">
-            <div className="flex items-center gap-1.5 text-gray-400 font-medium">
+          <div className="flex items-center justify-between text-xs text-muted-foreground mt-4 pt-4 border-t border-gray-700/50">
+            <div className="flex items-center gap-1.5 text-muted-foreground font-medium">
               <Clock className="w-3.5 h-3.5" />
               <span>{formatTimeAgo(article.datetime)}</span>
             </div>

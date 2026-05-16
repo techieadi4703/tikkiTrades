@@ -11,20 +11,20 @@ const layout = async ({ children }: { children: React.ReactNode }) => {
   if (session?.user) redirect("/");
 
   return (
-    <main className="relative h-screen flex items-center justify-center p-4 lg:p-8 overflow-hidden bg-black">
+    <main className="relative h-screen flex items-center justify-center p-4 lg:p-8 overflow-hidden bg-background">
 
       <div className="relative z-10 w-full max-w-7xl grid lg:grid-cols-[0.85fr_1.15fr] gap-8 lg:gap-12 items-center h-full max-h-[900px]">
 
         {/* Left Section: Form */}
-        <section className="bg-white/5 backdrop-blur-2xl border border-white/10 rounded-[2.5rem] p-8 lg:p-12 shadow-2xl flex flex-col gap-8 max-w-xl mx-auto w-full relative overflow-hidden">
+        <section className="bg-secondary/50 backdrop-blur-2xl border border-border rounded-[2.5rem] p-8 lg:p-12 shadow-2xl flex flex-col gap-8 max-w-xl mx-auto w-full relative overflow-hidden">
           {/* Subtle glow inside the form card */}
-          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-green-500/50 to-transparent" />
+          <div className="absolute top-0 left-0 w-full h-1 bg-linear-to-r from-transparent via-green-500/50 to-transparent" />
           
           <Link href="/" className="flex items-center gap-3 group">
             <div className="bg-green-500/10 p-2.5 rounded-xl group-hover:bg-green-500/20 transition-all border border-green-500/20 shadow-[0_0_20px_rgba(34,197,94,0.1)]">
               <TrendingUp className="w-8 h-8 text-green-500" />
             </div>
-            <span className="text-white font-bold text-2xl tracking-tight">TikkiTrades</span>
+            <span className="text-foreground font-bold text-2xl tracking-tight">TikkiTrades</span>
           </Link>
 
 

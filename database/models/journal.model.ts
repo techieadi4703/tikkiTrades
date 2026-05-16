@@ -4,11 +4,16 @@ export interface JournalEntryItem extends Document {
   userId: string;
   ticker?: string;
   entryText: string;
+  emotionalSentiment?: string;
+  chartImages?: string[];
+  isWin?: boolean;
+  sector?: string;
   aiReview?: {
     emotionalBiases: string[];
     thesisStrength: number;
     keyRisks: string[];
     improvement: string;
+    psychologicalScore?: number; // 1-10 on discipline
   };
   createdAt: Date;
 }
@@ -18,11 +23,16 @@ const JournalEntrySchema = new Schema<JournalEntryItem>(
     userId: { type: String, required: true, index: true },
     ticker: { type: String, uppercase: true, trim: true },
     entryText: { type: String, required: true },
+    emotionalSentiment: { type: String },
+    chartImages: [{ type: String }], // URLs or Base64
+    isWin: { type: Boolean },
+    sector: { type: String },
     aiReview: {
       emotionalBiases: [{ type: String }],
       thesisStrength: { type: Number },
       keyRisks: [{ type: String }],
-      improvement: { type: String }
+      improvement: { type: String },
+      psychologicalScore: { type: Number }
     },
     createdAt: { type: Date, default: Date.now, index: true },
   },

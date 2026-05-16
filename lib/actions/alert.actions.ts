@@ -10,10 +10,16 @@ export async function createAlert({
   ticker,
   targetPrice,
   condition,
+  alertType = 'price',
+  volumeThreshold,
+  sentimentDirection,
 }: {
   ticker: string;
-  targetPrice: number;
-  condition: 'above' | 'below';
+  targetPrice?: number;
+  condition?: 'above' | 'below';
+  alertType?: 'price' | 'volume_spike' | 'sentiment_shift';
+  volumeThreshold?: number;
+  sentimentDirection?: 'bullish' | 'bearish';
 }) {
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session?.user?.email) throw new Error("Not authenticated");
@@ -28,13 +34,23 @@ export async function createAlert({
 
     const userId = user.id || String(user._id);
     
-    const newAlert = await Alert.create({
+    const alertData: any = {
       userId,
       ticker: ticker.toUpperCase(),
-      targetPrice,
-      condition,
+      alertType,
       triggered: false,
-    });
+    };
+
+    if (alertType === 'price') {
+      alertData.targetPrice = targetPrice;
+      alertData.condition = condition || 'above';
+    } else if (alertType === 'volume_spike') {
+      alertData.volumeThreshold = volumeThreshold || 2.0;
+    } else if (alertType === 'sentiment_shift') {
+      alertData.sentimentDirection = sentimentDirection || 'bearish';
+    }
+
+    const newAlert = await Alert.create(alertData);
     
     revalidatePath(`/search/${ticker.toLowerCase()}`);
     return JSON.parse(JSON.stringify(newAlert));

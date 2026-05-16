@@ -1,7 +1,7 @@
 'use server';
 
 import OpenAI from 'openai';
-import { WATCHLIST_ASSISTANT_PROMPT } from '@/lib/chatbot/prompts';
+import { WATCHLIST_ASSISTANT_PROMPT, GLOBAL_ASSISTANT_PROMPT } from '@/lib/chatbot/prompts';
 
 export interface ChatMessage {
   role: 'user' | 'bot';
@@ -70,3 +70,59 @@ export async function getWatchlistAIResponse(
     };
   }
 }
+
+export async function getGlobalAIResponse(
+  userQuery: string,
+  history: ChatMessage[] = [],
+  currentPage?: string
+) {
+  try {
+    const apiKey = process.env.GROQ_API_KEY;
+    if (!apiKey) {
+      throw new Error('GROQ_API_KEY is not defined in environment variables.');
+    }
+
+    const groq = new OpenAI({
+      apiKey,
+      baseURL: 'https://api.groq.com/openai/v1',
+    });
+
+    const contextNote = currentPage
+      ? `\n\n### CURRENT CONTEXT:\nThe user is currently on the "${currentPage}" page of TikkiTrades.`
+      : '';
+
+    const systemPrompt = GLOBAL_ASSISTANT_PROMPT + contextNote;
+
+    const messages = [
+      { role: 'system' as const, content: systemPrompt },
+      ...history.map(msg => ({
+        role: (msg.role === 'user' ? 'user' : 'assistant') as 'user' | 'assistant',
+        content: msg.content
+      })),
+      { role: 'user' as const, content: userQuery }
+    ];
+
+    const completion = await groq.chat.completions.create({
+      messages,
+      model: 'llama-3.3-70b-versatile',
+      temperature: 0.7,
+      max_tokens: 1024,
+      top_p: 1,
+      stream: false,
+    });
+
+    const text = completion.choices[0]?.message?.content || "";
+
+    return {
+      success: true,
+      content: text
+    };
+  } catch (error: any) {
+    console.error('getGlobalAIResponse error:', error);
+    return {
+      success: false,
+      error: error.message || 'Failed to get AI response'
+    };
+  }
+}
+

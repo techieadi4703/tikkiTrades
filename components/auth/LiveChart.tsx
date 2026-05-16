@@ -136,7 +136,7 @@ const LiveChart = ({ color = "#22c55e", trend = "neutral" }: LiveChartProps) => 
             initial={{ opacity: 0, scale: 0.9, y: 10 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 10 }}
-            className="absolute top-0 pointer-events-none bg-black/60 backdrop-blur-md border border-white/20 px-3 py-1 rounded text-[10px] text-white font-mono z-20"
+            className="absolute top-0 pointer-events-none bg-black/60 backdrop-blur-md border border-border px-3 py-1 rounded text-[10px] text-foreground font-mono z-20"
             style={{ 
               left: `${(hoverIndex / (data.length - 1)) * 100}%`,
               transform: 'translateX(-50%)'
@@ -169,25 +169,25 @@ export const MarketCard = ({
     onClick={onClick}
     className={`p-4 rounded-xl flex justify-between items-center w-full cursor-pointer transition-all duration-300 group ${
       isActive 
-        ? "bg-white/10 border-white/30 shadow-[0_0_20px_rgba(255,255,255,0.05)]" 
-        : "bg-black/40 border-white/10 hover:bg-white/5"
+        ? "bg-secondary/50 border-border shadow-[0_0_20px_rgba(255,255,255,0.05)]" 
+        : "bg-black/40 border-border hover:bg-secondary/50"
     } border`}
   >
     <div className="flex items-center gap-3">
       <div className={`w-10 h-10 rounded-lg flex items-center justify-center font-bold text-xs transition-colors ${
         isActive 
-          ? "bg-white/20 text-white" 
+          ? "bg-secondary/50 text-foreground" 
           : change.startsWith('+') ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'
       }`}>
         {symbol.charAt(0)}
       </div>
       <div>
-        <h3 className={`font-bold uppercase transition-colors ${isActive ? 'text-white' : 'group-hover:text-green-400 text-gray-200'}`}>{symbol}</h3>
-        <p className="text-gray-400 text-xs">Real-time Feed</p>
+        <h3 className={`font-bold uppercase transition-colors ${isActive ? 'text-foreground' : 'group-hover:text-green-400 text-foreground'}`}>{symbol}</h3>
+        <p className="text-muted-foreground text-xs">Real-time Feed</p>
       </div>
     </div>
     <div className="text-right">
-      <p className="text-white font-mono font-medium">{price}</p>
+      <p className="text-foreground font-mono font-medium">{price}</p>
       <p className={`text-xs font-semibold ${change.startsWith('+') ? 'text-green-400' : 'text-red-400'}`}>
         {change}
       </p>

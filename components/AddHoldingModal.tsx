@@ -115,17 +115,17 @@ export default function AddHoldingModal({ isOpen, onClose, onAdd, existingSymbol
             initial={{ opacity: 0, scale: 0.95, y: 10 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 10 }}
-            className="bg-[#0F0F0F] border border-white/5 w-full max-w-md rounded-2xl shadow-2xl overflow-hidden relative"
+            className="bg-card border border-border w-full max-w-md rounded-2xl shadow-2xl overflow-hidden relative"
           >
-            <div className="flex items-center justify-between p-6 border-b border-white/5">
-              <h2 className="text-xl font-bold text-white tracking-tight">Add Portfolio Holding</h2>
+            <div className="flex items-center justify-between p-6 border-b border-border">
+              <h2 className="text-xl font-bold text-foreground tracking-tight">Add Portfolio Holding</h2>
               <button 
                 onClick={() => {
                   setSymbol('');
                   setSearchResults([]);
                   onClose();
                 }} 
-                className="text-gray-400 hover:text-white transition-colors bg-white/5 p-2 rounded-full"
+                className="text-muted-foreground hover:text-foreground transition-colors bg-secondary/50 p-2 rounded-full"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -133,7 +133,7 @@ export default function AddHoldingModal({ isOpen, onClose, onAdd, existingSymbol
 
             <form onSubmit={handleSubmit} className="p-6 space-y-4">
               <div className="space-y-2 relative">
-                <label className="text-sm font-medium text-gray-400">Ticker Symbol</label>
+                <label className="text-sm font-medium text-muted-foreground">Ticker Symbol</label>
                 <div className="relative flex items-center">
                     <Search className="w-4 h-4 text-emerald-500 absolute left-3"/>
                     <input
@@ -146,7 +146,7 @@ export default function AddHoldingModal({ isOpen, onClose, onAdd, existingSymbol
                             setSymbol(e.target.value);
                             setShowDropdown(true);
                         }}
-                        className="w-full bg-[#1A1A1A] border border-white/5 rounded-xl py-3 pl-10 pr-10 text-white placeholder:text-gray-600 focus:outline-none focus:border-emerald-500/50 transition-colors uppercase"
+                        className="w-full bg-secondary border border-border rounded-xl py-3 pl-10 pr-10 text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-emerald-500/50 transition-colors uppercase"
                     />
                     {isSearching && (
                         <Loader2 className="w-4 h-4 text-emerald-500 absolute right-3 animate-spin"/>
@@ -155,21 +155,21 @@ export default function AddHoldingModal({ isOpen, onClose, onAdd, existingSymbol
                 
                 {/* Search Dropdown */}
                 {showDropdown && symbol.trim() && !isSearching && searchResults.length > 0 && (
-                   <div className="absolute top-full left-0 right-0 mt-2 bg-[#1A1A1A] border border-white/10 rounded-xl shadow-2xl max-h-48 overflow-y-auto z-50 p-1 flex flex-col gap-1 custom-scrollbar">
+                   <div className="absolute top-full left-0 right-0 mt-2 bg-secondary border border-border rounded-xl shadow-2xl max-h-48 overflow-y-auto z-50 p-1 flex flex-col gap-1 custom-scrollbar">
                       {searchResults.map((res) => (
                          <div 
                            key={res.symbol}
                            onClick={() => handleSelectTicker(res.symbol)}
                            className="flex flex-col px-3 py-2 cursor-pointer rounded-lg hover:bg-emerald-500/10 transition-colors"
                          >
-                            <span className="text-white font-bold">{res.symbol}</span>
-                            <span className="text-xs text-gray-500 truncate">{res.name}</span>
+                            <span className="text-foreground font-bold">{res.symbol}</span>
+                            <span className="text-xs text-muted-foreground truncate">{res.name}</span>
                          </div>
                       ))}
                    </div>
                 )}
                 {showDropdown && symbol.trim() && !isSearching && searchResults.length === 0 && (
-                   <div className="absolute top-full left-0 right-0 mt-2 bg-[#1A1A1A] border border-white/10 rounded-xl shadow-2xl p-4 z-50 flex items-center justify-center text-sm text-gray-500">
+                   <div className="absolute top-full left-0 right-0 mt-2 bg-secondary border border-border rounded-xl shadow-2xl p-4 z-50 flex items-center justify-center text-sm text-muted-foreground">
                       No matching stocks found
                    </div>
                 )}
@@ -177,7 +177,7 @@ export default function AddHoldingModal({ isOpen, onClose, onAdd, existingSymbol
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                    <label className="text-sm font-medium text-gray-400">Shares Owned</label>
+                    <label className="text-sm font-medium text-muted-foreground">Shares Owned</label>
                     <input
                     type="number"
                     required
@@ -186,11 +186,11 @@ export default function AddHoldingModal({ isOpen, onClose, onAdd, existingSymbol
                     placeholder="10"
                     value={shares}
                     onChange={(e) => setShares(e.target.value)}
-                    className="w-full bg-[#1A1A1A] border border-white/5 rounded-xl py-3 px-4 text-white placeholder:text-gray-600 focus:outline-none focus:border-emerald-500/50 transition-colors"
+                    className="w-full bg-secondary border border-border rounded-xl py-3 px-4 text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-emerald-500/50 transition-colors"
                     />
                 </div>
                 <div className="space-y-2">
-                    <label className="text-sm font-medium text-gray-400">Avg. Cost ($)</label>
+                    <label className="text-sm font-medium text-muted-foreground">Avg. Cost ($)</label>
                     <input
                     type="number"
                     required
@@ -199,20 +199,19 @@ export default function AddHoldingModal({ isOpen, onClose, onAdd, existingSymbol
                     placeholder="150.00"
                     value={averagePrice}
                     onChange={(e) => setAveragePrice(e.target.value)}
-                    className="w-full bg-[#1A1A1A] border border-white/5 rounded-xl py-3 px-4 text-white placeholder:text-gray-600 focus:outline-none focus:border-emerald-500/50 transition-colors"
+                    className="w-full bg-secondary border border-border rounded-xl py-3 px-4 text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-emerald-500/50 transition-colors"
                     />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-400">Date Purchased</label>
+                <label className="text-sm font-medium text-muted-foreground">Date Purchased</label>
                 <input
                   type="date"
                   required
                   value={datePurchased}
                   onChange={(e) => setDatePurchased(e.target.value)}
-                  className="w-full bg-[#1A1A1A] border border-white/5 rounded-xl py-3 px-4 text-white placeholder:text-gray-600 focus:outline-none focus:border-emerald-500/50 transition-colors"
-                  style={{ colorScheme: 'dark' }}
+                  className="w-full bg-secondary border border-border rounded-xl py-3 px-4 text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-emerald-500/50 transition-colors"
                 />
               </div>
 

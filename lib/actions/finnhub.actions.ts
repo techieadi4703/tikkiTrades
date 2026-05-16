@@ -4,6 +4,7 @@ import { getDateRange, validateArticle, formatArticle } from '@/lib/utils';
 import { POPULAR_STOCK_SYMBOLS } from '@/lib/constants';
 import { cache } from 'react';
 import YahooFinance from 'yahoo-finance2';
+import { GoogleGenAI } from '@google/genai';
 const yahooFinance = new YahooFinance({ suppressNotices: ['yahooSurvey'] });
 const FINNHUB_BASE_URL = 'https://finnhub.io/api/v1';
 const NEXT_PUBLIC_FINNHUB_API_KEY = process.env.NEXT_PUBLIC_FINNHUB_API_KEY ?? '';
@@ -311,5 +312,63 @@ export async function getBasicFinancials(symbol: string) {
   } catch (error: any) {
     console.warn(`Failed to fetch basic financials from Finnhub for ${symbol}, falling back to Yahoo:`, error.message);
     return getYahooBasicFinancials(symbol);
+  }
+}
+
+export async function aiDiscoverStocks(prompt: string): Promise<StockWithWatchlistStatus[]> {
+  if (!process.env.GEMINI_API_KEY) {
+    throw new Error('Gemini API key not configured for AI Discovery.');
+  }
+
+  try {
+    const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+    const systemPrompt = `You are an elite AI stock market discovery engine. A user is looking for stock ideas based on a specific theme, query, or natural language prompt.
+    
+User Query: "${prompt}"
+
+Your task is to identify up to 5 publicly traded companies (US markets preferred) that best match the query.
+Return the results as a valid JSON array of strings containing ONLY the stock ticker symbols.
+
+Example: ["AAPL", "MSFT", "NVDA", "TSM", "ASML"]
+`;
+
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: systemPrompt,
+      config: { responseMimeType: 'application/json' }
+    });
+
+    const responseText = response.text || "[]";
+    const cleanJsonText = responseText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+    let symbols: string[] = JSON.parse(cleanJsonText);
+    
+    if (!Array.isArray(symbols)) {
+      symbols = [];
+    }
+
+    // Now fetch company profiles for these symbols to return proper search results
+    const results = await Promise.all(
+      symbols.slice(0, 5).map(async (sym) => {
+        try {
+          const profile = await getCompanyProfile(sym);
+          if (profile && profile.name) {
+            return {
+              symbol: sym,
+              name: profile.name,
+              exchange: profile.exchange || 'US',
+              type: profile.finnhubIndustry || 'Equity'
+            };
+          }
+          return null;
+        } catch (e) {
+          return null;
+        }
+      })
+    );
+
+    return results.filter(Boolean) as StockWithWatchlistStatus[];
+  } catch (error) {
+    console.error('aiDiscoverStocks error:', error);
+    throw new Error('Failed to discover stocks using AI.');
   }
 }

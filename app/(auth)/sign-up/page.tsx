@@ -38,7 +38,7 @@ const SignUp = () => {
         description: isUserExists ? (
           <div className="flex flex-col gap-1">
             <span>User already exists.</span>
-            <span className="text-gray-400">Use another email or sign in to your account.</span>
+            <span className="text-muted-foreground">Use another email or sign in to your account.</span>
           </div>
         ) : result.error,
       });
@@ -77,8 +77,8 @@ const SignUp = () => {
       className="space-y-6"
     >
       <motion.div variants={itemVariants}>
-        <h1 className="text-3xl font-bold text-white mb-2 tracking-tight">Get Started</h1>
-        <p className="text-gray-400 font-medium">Join TikkiTrades to start your investing journey</p>
+        <h1 className="text-3xl font-bold text-foreground mb-2 tracking-tight">Get Started</h1>
+        <p className="text-muted-foreground font-medium">Join TikkiTrades to start your investing journey</p>
       </motion.div>
 
       <motion.form 

@@ -5,7 +5,7 @@ import { motion, AnimatePresence, Variants } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { Plus, Trash2, TrendingUp, TrendingDown, Briefcase, Activity } from 'lucide-react';
-import { PortfolioHolding, addPortfolioHolding, removePortfolioHolding } from '@/lib/actions/portfolio.actions';
+import { PortfolioHolding, addPortfolioHolding, removePortfolioHolding, getPortfolioHealthAnalysis } from '@/lib/actions/portfolio.actions';
 import AddHoldingModal from '@/components/AddHoldingModal';
 import PortfolioChart from '@/components/PortfolioChart';
 
@@ -28,6 +28,9 @@ export default function PortfolioClient({ initialHoldings }: { initialHoldings: 
   const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
+
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [healthAnalysis, setHealthAnalysis] = useState<any>(null);
 
   // Optimistic UI Hook
   const [optimisticHoldings, addOptimisticHolding] = useOptimistic(
@@ -85,6 +88,33 @@ export default function PortfolioClient({ initialHoldings }: { initialHoldings: 
     }
   };
 
+  const handleAnalyzeHealth = async () => {
+    if (optimisticHoldings.length === 0) {
+      toast.error("Add some holdings first to analyze them!");
+      return;
+    }
+    
+    setIsAnalyzing(true);
+    let toastId = toast.loading("AI is analyzing your portfolio risk...");
+    
+    try {
+      const res = await getPortfolioHealthAnalysis(optimisticHoldings);
+      if (res.success && res.analysis) {
+        setHealthAnalysis(res.analysis);
+        toast.dismiss(toastId);
+        toast.success("Analysis complete!");
+      } else {
+        toast.dismiss(toastId);
+        toast.error(res.message || "Failed to analyze portfolio.");
+      }
+    } catch (err) {
+      toast.dismiss(toastId);
+      toast.error("An error occurred during analysis.");
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+
   // Derived Summary Math
   const { totalValue, totalCost, totalDailyChange } = useMemo(() => {
     return optimisticHoldings.reduce(
@@ -119,39 +149,106 @@ export default function PortfolioClient({ initialHoldings }: { initialHoldings: 
         {/* Header Action */}
         <motion.div variants={itemVariants} className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight text-white flex items-center gap-3">
+            <h1 className="text-3xl font-bold tracking-tight text-foreground flex items-center gap-3">
               <Briefcase className="w-8 h-8 text-emerald-500 bg-emerald-500/10 p-1.5 rounded-lg border border-emerald-500/20" />
               Portfolio Tracker
             </h1>
-            <p className="text-gray-400 mt-1 flex items-center gap-2 text-sm">
+            <p className="text-muted-foreground mt-1 flex items-center gap-2 text-sm">
               <Activity className="w-4 h-4 text-emerald-500" />
               Live market sync active
             </p>
           </div>
-          
-          <button
-            onClick={() => setIsModalOpen(true)}
-            className="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-black font-semibold px-5 py-2.5 rounded-xl transition-all shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_30px_rgba(16,185,129,0.5)] transform hover:-translate-y-0.5"
-          >
-            <Plus className="w-5 h-5" />
-            Add Holding
-          </button>
+          <div className="flex flex-col sm:flex-row gap-3">
+            <button
+              onClick={handleAnalyzeHealth}
+              disabled={isAnalyzing || optimisticHoldings.length === 0}
+              className="flex items-center justify-center gap-2 bg-violet-500/10 hover:bg-violet-500/20 text-violet-500 border border-violet-500/20 font-semibold px-5 py-2.5 rounded-xl transition-all shadow-sm disabled:opacity-50"
+            >
+              {isAnalyzing ? (
+                <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: "linear" }}>
+                  <Activity className="w-5 h-5" />
+                </motion.div>
+              ) : (
+                <TrendingUp className="w-5 h-5" />
+              )}
+              {isAnalyzing ? "Analyzing..." : "AI Health Check"}
+            </button>
+            <button
+              onClick={() => setIsModalOpen(true)}
+              className="flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-black font-semibold px-5 py-2.5 rounded-xl transition-all shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_30px_rgba(16,185,129,0.5)] transform hover:-translate-y-0.5"
+            >
+              <Plus className="w-5 h-5" />
+              Add Holding
+            </button>
+          </div>
         </motion.div>
+
+        {healthAnalysis && (
+          <motion.div 
+            initial={{ opacity: 0, height: 0 }} 
+            animate={{ opacity: 1, height: 'auto' }} 
+            className="bg-card border border-violet-500/30 rounded-2xl p-6 shadow-lg relative overflow-hidden"
+          >
+            <div className="absolute top-0 right-0 p-8 opacity-5">
+              <TrendingUp className="w-48 h-48 text-violet-500" />
+            </div>
+            <div className="flex items-center gap-3 mb-6 relative z-10">
+              <div className="bg-violet-500/10 p-2.5 rounded-lg text-violet-500">
+                <Activity className="w-6 h-6" />
+              </div>
+              <h2 className="text-2xl font-bold text-foreground">AI Health Profile</h2>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10">
+              <div className="bg-secondary/50 p-4 rounded-xl border border-border flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground mb-1">Alpha Score</p>
+                  <p className="text-2xl font-bold text-foreground">{healthAnalysis.alphaScore}<span className="text-sm text-muted-foreground">/100</span></p>
+                </div>
+                <div className={`text-sm px-3 py-1 rounded-full font-bold ${healthAnalysis.alphaScore > 70 ? 'bg-emerald-500/20 text-emerald-500' : healthAnalysis.alphaScore > 40 ? 'bg-orange-500/20 text-orange-500' : 'bg-red-500/20 text-red-500'}`}>
+                  {healthAnalysis.alphaScore > 70 ? 'Strong' : healthAnalysis.alphaScore > 40 ? 'Fair' : 'Weak'}
+                </div>
+              </div>
+              
+              <div className="bg-secondary/50 p-4 rounded-xl border border-border">
+                <p className="text-sm font-medium text-muted-foreground mb-1">Estimated Beta</p>
+                <p className={`text-xl font-bold ${healthAnalysis.estimatedBeta === 'High' ? 'text-red-500' : healthAnalysis.estimatedBeta === 'Low' ? 'text-emerald-500' : 'text-blue-500'}`}>
+                  {healthAnalysis.estimatedBeta} Volatility
+                </p>
+              </div>
+
+              <div className="bg-secondary/50 p-4 rounded-xl border border-border">
+                <p className="text-sm font-medium text-muted-foreground mb-1">Diversification</p>
+                <p className="text-sm text-foreground line-clamp-2">{healthAnalysis.diversificationRisk}</p>
+              </div>
+            </div>
+
+            <div className="mt-4 bg-blue-500/10 border border-blue-500/20 p-4 rounded-xl relative z-10 flex gap-4 items-start">
+               <div className="shrink-0 mt-1">
+                 <Briefcase className="w-5 h-5 text-blue-500" />
+               </div>
+               <div>
+                 <p className="text-sm font-bold text-blue-500 mb-1 uppercase tracking-wider">Actionable Advice</p>
+                 <p className="text-foreground font-medium">{healthAnalysis.actionableAdvice}</p>
+               </div>
+            </div>
+          </motion.div>
+        )}
 
         {/* Top Overview Cards */}
         <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Card 1: Total Value */}
-          <div className="bg-[#0F0F0F] border border-white/5 rounded-2xl p-6 relative overflow-hidden group">
-            <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-            <p className="text-sm font-medium text-gray-400 mb-1">Total Portfolio Value</p>
-            <h2 className="text-4xl font-black text-white tracking-tight">
+          <div className="bg-card border border-border rounded-2xl p-6 relative overflow-hidden group">
+            <div className="absolute inset-0 bg-linear-to-br from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <p className="text-sm font-medium text-muted-foreground mb-1">Total Portfolio Value</p>
+            <h2 className="text-4xl font-black text-foreground tracking-tight">
               ${totalValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </h2>
           </div>
 
           {/* Card 2: Total Unrealized P&L */}
-          <div className="bg-[#0F0F0F] border border-white/5 rounded-2xl p-6 relative overflow-hidden group">
-             <p className="text-sm font-medium text-gray-400 mb-1">Overall P&L (Unrealized)</p>
+          <div className="bg-card border border-border rounded-2xl p-6 relative overflow-hidden group">
+             <p className="text-sm font-medium text-muted-foreground mb-1">Overall P&L (Unrealized)</p>
              <div className="flex items-baseline gap-3">
                <h2 className={`text-3xl font-bold tracking-tight ${totalPnL >= 0 ? 'text-emerald-500' : 'text-red-500'}`}>
                  {totalPnL >= 0 ? '+' : ''}${totalPnL.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
@@ -164,8 +261,8 @@ export default function PortfolioClient({ initialHoldings }: { initialHoldings: 
           </div>
 
           {/* Card 3: Today's Return */}
-          <div className="bg-[#0F0F0F] border border-white/5 rounded-2xl p-6 relative overflow-hidden group">
-             <p className="text-sm font-medium text-gray-400 mb-1">Today's Profit / Loss</p>
+          <div className="bg-card border border-border rounded-2xl p-6 relative overflow-hidden group">
+             <p className="text-sm font-medium text-muted-foreground mb-1">Today's Profit / Loss</p>
              <h2 className={`text-3xl font-bold tracking-tight ${totalDailyChange >= 0 ? 'text-emerald-500' : 'text-red-500'}`}>
                {totalDailyChange >= 0 ? '+' : ''}${totalDailyChange.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
              </h2>
@@ -175,18 +272,18 @@ export default function PortfolioClient({ initialHoldings }: { initialHoldings: 
         {/* Main Content Area */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Table */}
-          <motion.div variants={itemVariants} className="lg:col-span-2 bg-[#0F0F0F] border border-white/5 rounded-2xl overflow-hidden shadow-xl">
-             <div className="p-6 border-b border-white/5 bg-white/[0.02]">
-                <h3 className="text-lg font-bold text-white tracking-tight">Your Holdings</h3>
+          <motion.div variants={itemVariants} className="lg:col-span-2 bg-card border border-border rounded-2xl overflow-hidden shadow-xl">
+             <div className="p-6 border-b border-border bg-secondary/30">
+                <h3 className="text-lg font-bold text-foreground tracking-tight">Your Holdings</h3>
              </div>
              
              {optimisticHoldings.length === 0 ? (
                <div className="p-12 text-center flex flex-col items-center justify-center">
-                  <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mb-4">
-                    <Briefcase className="w-8 h-8 text-gray-500" />
+                  <div className="w-16 h-16 bg-secondary/50 rounded-full flex items-center justify-center mb-4">
+                    <Briefcase className="w-8 h-8 text-muted-foreground" />
                   </div>
-                  <h4 className="text-white font-medium text-lg">No assets yet</h4>
-                  <p className="text-gray-500 mb-6 text-sm">Add your first stock, ETF, or crypto to track your wealth.</p>
+                  <h4 className="text-foreground font-medium text-lg">No assets yet</h4>
+                  <p className="text-muted-foreground mb-6 text-sm">Add your first stock, ETF, or crypto to track your wealth.</p>
                   <button onClick={() => setIsModalOpen(true)} className="text-emerald-500 hover:text-emerald-400 font-medium text-sm transition-colors">
                     Click here to add one
                   </button>
@@ -195,7 +292,7 @@ export default function PortfolioClient({ initialHoldings }: { initialHoldings: 
                <div className="overflow-x-auto">
                  <table className="w-full text-left border-collapse">
                    <thead>
-                     <tr className="border-b border-white/5 text-xs uppercase tracking-wider text-gray-500 bg-white/[0.01]">
+                     <tr className="border-b border-border text-xs uppercase tracking-wider text-muted-foreground bg-secondary/30">
                        <th className="px-6 py-4 font-medium">Asset</th>
                        <th className="px-6 py-4 font-medium text-right">Shares</th>
                        <th className="px-6 py-4 font-medium text-right">Cost (Avg)</th>
@@ -217,20 +314,20 @@ export default function PortfolioClient({ initialHoldings }: { initialHoldings: 
                            transition={{ duration: 0.4, type: 'spring', bounce: 0.3 }}
                            whileHover={{ scale: 1.01, backgroundColor: 'rgba(255, 255, 255, 0.03)' }}
                            onClick={() => router.push(`/stocks/${h.symbol}`)}
-                           className="border-b border-white/5 hover:bg-white/[0.02] transition-colors cursor-pointer"
+                           className="border-b border-border hover:bg-secondary/30 transition-colors cursor-pointer"
                          >
                            <td className="px-6 py-4">
                              <div className="flex flex-col">
-                               <span className="text-white font-bold tracking-tight">{h.symbol}</span>
-                               <span className="text-xs text-gray-500 truncate max-w-[120px]">{h.name}</span>
+                               <span className="text-foreground font-bold tracking-tight">{h.symbol}</span>
+                               <span className="text-xs text-muted-foreground truncate max-w-[120px]">{h.name}</span>
                              </div>
                            </td>
-                           <td className="px-6 py-4 text-right text-gray-300 font-mono">{h.shares}</td>
+                           <td className="px-6 py-4 text-right text-foreground font-mono">{h.shares}</td>
                            <td className="px-6 py-4 text-right">
-                             <span className="text-gray-300 font-mono">${h.averagePrice.toFixed(2)}</span>
+                             <span className="text-foreground font-mono">${h.averagePrice.toFixed(2)}</span>
                            </td>
                            <td className="px-6 py-4 text-right">
-                             <span className="text-white font-mono font-medium">${h.currentPrice.toFixed(2)}</span>
+                             <span className="text-foreground font-mono font-medium">${h.currentPrice.toFixed(2)}</span>
                            </td>
                            <td className="px-6 py-4 text-right">
                              <div className="flex flex-col items-end">
@@ -239,12 +336,12 @@ export default function PortfolioClient({ initialHoldings }: { initialHoldings: 
                                </span>
                              </div>
                            </td>
-                           <td className="px-6 py-4 text-right bg-white/[0.01]">
+                           <td className="px-6 py-4 text-right bg-secondary/30">
                              <div className="flex flex-col items-end">
                                <span className={`font-mono font-semibold ${h.unrealizedPnLPercent >= 0 ? 'text-emerald-500' : 'text-red-500'}`}>
                                  {h.unrealizedPnLPercent > 0 ? '+' : ''}{h.unrealizedPnLPercent.toFixed(2)}%
                                </span>
-                               <span className="text-xs text-gray-500 font-mono">
+                               <span className="text-xs text-muted-foreground font-mono">
                                  ${Math.abs(h.unrealizedPnL).toFixed(2)}
                                </span>
                              </div>
@@ -255,7 +352,7 @@ export default function PortfolioClient({ initialHoldings }: { initialHoldings: 
                                  e.stopPropagation();
                                  handleRemove(h._id);
                                }}
-                               className="text-gray-500 hover:text-red-500 hover:bg-red-500/10 p-2 rounded-lg transition-colors"
+                               className="text-muted-foreground hover:text-red-500 hover:bg-red-500/10 p-2 rounded-lg transition-colors"
                              >
                                <Trash2 className="w-4 h-4" />
                              </button>
@@ -270,21 +367,21 @@ export default function PortfolioClient({ initialHoldings }: { initialHoldings: 
           </motion.div>
 
           {/* Allocation Panel */}
-          <motion.div variants={itemVariants} className="bg-[#0F0F0F] border border-white/5 rounded-2xl p-6 shadow-xl flex flex-col">
-            <h3 className="text-lg font-bold text-white tracking-tight mb-6">Allocation Base</h3>
+          <motion.div variants={itemVariants} className="bg-card border border-border rounded-2xl p-6 shadow-xl flex flex-col">
+            <h3 className="text-lg font-bold text-foreground tracking-tight mb-6">Allocation Base</h3>
             <div className="flex-1 flex items-center justify-center">
                <PortfolioChart data={chartData} />
             </div>
             
             {optimisticHoldings.length > 0 && (
-              <div className="mt-6 pt-6 border-t border-white/5 space-y-3 max-h-[200px] overflow-y-auto pr-2 custom-scrollbar">
+              <div className="mt-6 pt-6 border-t border-border space-y-3 max-h-[200px] overflow-y-auto pr-2 custom-scrollbar">
                 {chartData.map((d, i) => (
                    <div key={`${d.name}-${i}`} className="flex items-center justify-between text-sm">
                      <div className="flex items-center gap-3">
                        <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: d.fill }} />
-                       <span className="text-gray-300 font-medium">{d.name}</span>
+                       <span className="text-foreground font-medium">{d.name}</span>
                      </div>
-                     <span className="text-gray-500 font-mono">
+                     <span className="text-muted-foreground font-mono">
                        {((d.value / totalValue) * 100).toFixed(1)}%
                      </span>
                    </div>

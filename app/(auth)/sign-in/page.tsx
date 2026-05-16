@@ -71,8 +71,8 @@ const SignIn = () => {
       className="space-y-6"
     >
       <motion.div variants={itemVariants}>
-        <h1 className="text-3xl font-bold text-white mb-2 tracking-tight">Welcome back</h1>
-        <p className="text-gray-400 font-medium">Enter your credentials to access your account</p>
+        <h1 className="text-3xl font-bold text-foreground mb-2 tracking-tight">Welcome back</h1>
+        <p className="text-muted-foreground font-medium">Enter your credentials to access your account</p>
       </motion.div>
 
       <motion.form 

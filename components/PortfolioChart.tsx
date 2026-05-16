@@ -12,13 +12,13 @@ const CustomTooltip = ({ active, payload }: any) => {
   if (active && payload && payload.length) {
     const data = payload[0].payload;
     return (
-      <div className="bg-[#0F0F0F] border border-white/10 rounded-xl p-3 shadow-xl backdrop-blur-md">
+      <div className="bg-card border border-border rounded-xl p-3 shadow-xl backdrop-blur-md">
         <div className="flex items-center gap-2 mb-1">
           <div className="w-3 h-3 rounded-full" style={{ backgroundColor: data.fill }} />
-          <p className="text-white font-medium">{data.name}</p>
+          <p className="text-foreground font-medium">{data.name}</p>
         </div>
-        <p className="text-gray-400 text-sm">
-          Value: <span className="text-white font-mono">${data.value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+        <p className="text-muted-foreground text-sm">
+          Value: <span className="text-foreground font-mono">${data.value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
         </p>
       </div>
     );
@@ -29,7 +29,7 @@ const CustomTooltip = ({ active, payload }: any) => {
 export default function PortfolioChart({ data }: PortfolioChartProps) {
   if (!data || data.length === 0) {
     return (
-      <div className="h-[250px] flex items-center justify-center text-gray-500 text-sm">
+      <div className="h-[250px] flex items-center justify-center text-muted-foreground text-sm">
         Add holdings to see allocation
       </div>
     );
@@ -59,7 +59,7 @@ export default function PortfolioChart({ data }: PortfolioChartProps) {
       
       {/* Center Label inside Donut */}
       <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-        <span className="text-xs text-gray-500 uppercase tracking-widest font-medium">Allocation</span>
+        <span className="text-xs text-muted-foreground uppercase tracking-widest font-medium">Allocation</span>
       </div>
     </div>
   );

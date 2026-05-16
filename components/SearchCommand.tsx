@@ -5,13 +5,14 @@ import { CommandDialog, CommandEmpty, CommandInput, CommandList } from "@/compon
 import {Button} from "@/components/ui/button";
 import {Loader2,  TrendingUp} from "lucide-react";
 import Link from "next/link";
-import {searchStocks} from "@/lib/actions/finnhub.actions";
+import {searchStocks, aiDiscoverStocks} from "@/lib/actions/finnhub.actions";
 import {useDebounce} from "@/hooks/useDebounce";
 
 export default function SearchCommand({ renderAs = 'button', label = 'Add stock', initialStocks }: SearchCommandProps) {
   const [open, setOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState("")
   const [loading, setLoading] = useState(false)
+  const [isAiSearching, setIsAiSearching] = useState(false)
   const [stocks, setStocks] = useState<StockWithWatchlistStatus[]>(initialStocks);
 
   const isSearchMode = !!searchTerm.trim();
@@ -31,6 +32,7 @@ export default function SearchCommand({ renderAs = 'button', label = 'Add stock'
   const handleSearch = async () => {
     if(!isSearchMode) return setStocks(initialStocks);
 
+    // If it's a very long query, they might want AI, but standard search is default
     setLoading(true)
     try {
         const results = await searchStocks(searchTerm.trim());
@@ -39,6 +41,20 @@ export default function SearchCommand({ renderAs = 'button', label = 'Add stock'
       setStocks([])
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleAiDiscovery = async () => {
+    if(!searchTerm.trim()) return;
+    setIsAiSearching(true);
+    setStocks([]); // Clear existing
+    try {
+      const results = await aiDiscoverStocks(searchTerm.trim());
+      setStocks(results);
+    } catch {
+      setStocks([]);
+    } finally {
+      setIsAiSearching(false);
     }
   }
 
@@ -67,21 +83,32 @@ export default function SearchCommand({ renderAs = 'button', label = 'Add stock'
       )}
       <CommandDialog open={open} onOpenChange={setOpen} className="search-dialog">
         <div className="search-field">
-          <CommandInput value={searchTerm} onValueChange={setSearchTerm} placeholder="Search stocks..." className="search-input" />
-          {loading && <Loader2 className="search-loader" />}
+          <CommandInput value={searchTerm} onValueChange={setSearchTerm} placeholder="Search stocks or ask AI for ideas..." className="search-input" />
+          {(loading || isAiSearching) && <Loader2 className="search-loader" />}
         </div>
         <CommandList className="search-list">
-          {loading ? (
-              <CommandEmpty className="search-list-empty">Loading stocks...</CommandEmpty>
+          {(loading || isAiSearching) ? (
+              <CommandEmpty className="search-list-empty">{isAiSearching ? 'AI is discovering ideas...' : 'Loading stocks...'}</CommandEmpty>
           ) : displayStocks?.length === 0 ? (
               <div className="search-list-indicator">
-                {isSearchMode ? 'No results found' : 'No stocks available'}
+                {isSearchMode ? 'No exact matches found' : 'No stocks available'}
               </div>
             ) : (
             <ul>
-              <div className="search-count">
-                {isSearchMode ? 'Search results' : 'Popular stocks'}
-                {` `}({displayStocks?.length || 0})
+              <div className="search-count flex justify-between items-center">
+                <span>
+                  {isSearchMode ? 'Search results' : 'Popular stocks'}
+                  {` `}({displayStocks?.length || 0})
+                </span>
+                
+                {isSearchMode && searchTerm.split(' ').length >= 2 && !isAiSearching && (
+                  <button 
+                    onClick={handleAiDiscovery}
+                    className="text-xs bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-500 px-2 py-1 rounded transition-colors border border-emerald-500/20 font-bold"
+                  >
+                    ✨ Ask AI
+                  </button>
+                )}
               </div>
               {displayStocks?.map((stock, i) => (
                   <li key={stock.symbol} className="search-item">
@@ -90,12 +117,12 @@ export default function SearchCommand({ renderAs = 'button', label = 'Add stock'
                         onClick={handleSelectStock}
                         className="search-item-link"
                     >
-                      <TrendingUp className="h-4 w-4 text-gray-500" />
+                      <TrendingUp className="h-4 w-4 text-muted-foreground" />
                       <div  className="flex-1">
                         <div className="search-item-name">
                           {stock.name}
                         </div>
-                        <div className="text-sm text-gray-500">
+                        <div className="text-sm text-muted-foreground">
                           {stock.symbol} | {stock.exchange } | {stock.type}
                         </div>
                       </div>

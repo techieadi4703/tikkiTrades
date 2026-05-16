@@ -57,7 +57,7 @@ export default function NotificationBell({
         <Button
           variant="ghost"
           size="icon"
-          className="relative text-gray-400 hover:text-emerald-500 hover:bg-emerald-500/10 rounded-full h-10 w-10 transition-all"
+          className="relative text-muted-foreground hover:text-emerald-500 hover:bg-emerald-500/10 rounded-full h-10 w-10 transition-all"
         >
           <Bell className="h-5 w-5" />
           <AnimatePresence>
@@ -66,7 +66,7 @@ export default function NotificationBell({
                 initial={{ scale: 0, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0, opacity: 0 }}
-                className="absolute top-1.5 right-1.5 h-4 w-4 rounded-full bg-emerald-500 flex items-center justify-center border-2 border-[#141414]"
+                className="absolute top-1.5 right-1.5 h-4 w-4 rounded-full bg-emerald-500 flex items-center justify-center border-2 border-background"
               >
                 <span className="text-[10px] font-bold text-emerald-950">
                   {unreadCount > 9 ? '9+' : unreadCount}
@@ -79,16 +79,16 @@ export default function NotificationBell({
       
       <PopoverContent 
         align="end" 
-        className="w-80 p-0 bg-[#0A0A0A] border-[#222222] text-gray-100 shadow-2xl rounded-xl overflow-hidden"
+        className="w-80 p-0 bg-background border-border text-foreground shadow-2xl rounded-xl overflow-hidden"
       >
-        <div className="flex items-center justify-between p-4 border-b border-[#222222] bg-[#0F0F0F]">
-          <h4 className="font-semibold text-gray-200">Notifications</h4>
+        <div className="flex items-center justify-between p-4 border-b border-border bg-card">
+          <h4 className="font-semibold text-foreground">Notifications</h4>
           {unreadCount > 0 && (
             <Button
               variant="ghost"
               size="sm"
               onClick={handleMarkAllAsRead}
-              className="h-8 px-2 text-xs text-gray-400 hover:text-emerald-500 hover:bg-emerald-500/10"
+              className="h-8 px-2 text-xs text-muted-foreground hover:text-emerald-500 hover:bg-emerald-500/10"
             >
               <Check className="h-3.5 w-3.5 mr-1" />
               Mark all read
@@ -104,11 +104,11 @@ export default function NotificationBell({
                 animate={{ opacity: 1 }}
                 className="py-12 px-4 flex flex-col items-center justify-center text-center"
               >
-                <div className="h-12 w-12 rounded-full bg-[#1A1A1A] flex items-center justify-center mb-3">
-                  <Bell className="h-6 w-6 text-gray-600" />
+                <div className="h-12 w-12 rounded-full bg-secondary flex items-center justify-center mb-3">
+                  <Bell className="h-6 w-6 text-muted-foreground" />
                 </div>
-                <p className="text-sm text-gray-400 font-medium">All caught up!</p>
-                <p className="text-xs text-gray-600 mt-1">Check back later for new alerts.</p>
+                <p className="text-sm text-muted-foreground font-medium">All caught up!</p>
+                <p className="text-xs text-muted-foreground mt-1">Check back later for new alerts.</p>
               </motion.div>
             ) : (
               notifications.map((notification) => (
@@ -117,17 +117,17 @@ export default function NotificationBell({
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, x: -20, height: 0 }}
-                  className="p-4 border-b border-[#222222]/50 hover:bg-[#141414] transition-colors relative group"
+                  className="p-4 border-b border-border hover:bg-secondary/50 transition-colors relative group"
                 >
                   <div className="flex gap-3">
                     <div className="h-8 w-8 shrink-0 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mt-0.5">
                       <Bell className="h-4 w-4 text-emerald-500" />
                     </div>
                     <div className="flex-1 space-y-1">
-                      <p className="text-sm text-gray-300 leading-tight">
+                      <p className="text-sm text-foreground leading-tight">
                         {notification.message}
                       </p>
-                      <p className="text-[11px] text-gray-500">
+                      <p className="text-[11px] text-muted-foreground">
                         {formatDistanceToNow(new Date(notification.createdAt), { addSuffix: true })}
                       </p>
                     </div>
@@ -135,7 +135,7 @@ export default function NotificationBell({
                   
                   <button
                     onClick={() => handleMarkAsRead(notification._id)}
-                    className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity p-1.5 text-gray-500 hover:text-emerald-500 hover:bg-emerald-500/10 rounded-md"
+                    className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity p-1.5 text-muted-foreground hover:text-emerald-500 hover:bg-emerald-500/10 rounded-md"
                     title="Mark as read"
                   >
                     <Check className="h-4 w-4" />

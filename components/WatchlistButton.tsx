@@ -46,7 +46,7 @@ const WatchlistButton = ({
     return (
       <motion.button
         whileTap={{ scale: 0.9 }}
-        className={`watchlist-icon-btn flex items-center justify-center rounded-full p-2 transition-all ${added ? "text-emerald-500 bg-emerald-500/10" : "text-gray-400 hover:text-emerald-400 hover:bg-white/5"}`}
+        className={`watchlist-icon-btn flex items-center justify-center rounded-full p-2 transition-all ${added ? "text-emerald-500 bg-emerald-500/10" : "text-muted-foreground hover:text-emerald-400 hover:bg-secondary/50"}`}
         onClick={handleClick}
       >
         <span className="text-xl">⭐</span>

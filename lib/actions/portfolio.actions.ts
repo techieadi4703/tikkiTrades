@@ -4,6 +4,7 @@ import { connectToDatabase } from '@/database/mongoose';
 import { Portfolio } from '@/database/models/portfolio.model';
 import { auth } from '../better-auth/auth';
 import { headers } from 'next/headers';
+import { GoogleGenAI } from '@google/genai';
 import { revalidatePath } from 'next/cache';
 import { getQuote, getCompanyProfile } from './finnhub.actions';
 
@@ -170,5 +171,57 @@ export async function removePortfolioHolding(holdingId: string) {
   } catch (e: any) {
     console.error('removePortfolioHolding error:', e);
     return { success: false, error: e.message };
+  }
+}
+
+export async function getPortfolioHealthAnalysis(holdings: PortfolioHolding[]) {
+  try {
+    if (!process.env.GEMINI_API_KEY) {
+      return { success: false, message: "No API key found." };
+    }
+    
+    if (!holdings || holdings.length === 0) {
+      return { success: false, message: "No holdings to analyze." };
+    }
+
+    const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+    
+    // Create a summarized view for the prompt
+    const portfolioSummary = holdings.map(h => ({
+      symbol: h.symbol,
+      value: h.totalValue,
+      unrealizedPnLPercent: h.unrealizedPnLPercent
+    }));
+
+    const totalPortfolioValue = holdings.reduce((sum, h) => sum + h.totalValue, 0);
+
+    const prompt = `You are an elite quantitative analyst and portfolio manager. Analyze the following user's stock portfolio.
+    
+Portfolio Data:
+${JSON.stringify(portfolioSummary, null, 2)}
+Total Value: $${totalPortfolioValue}
+
+Return your analysis as a valid JSON object matching exactly this format:
+{
+  "alphaScore": number (1-100, where 100 is excellent health/diversification),
+  "diversificationRisk": "A short sentence about their sector concentration risk",
+  "estimatedBeta": "High", "Medium", or "Low" (estimate based on typical tech/index volatility),
+  "actionableAdvice": "One specific suggestion on how to balance or improve the portfolio."
+}`;
+
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: prompt,
+      config: { responseMimeType: 'application/json' }
+    });
+
+    const responseText = response.text || "{}";
+    const cleanJsonText = responseText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+    const analysis = JSON.parse(cleanJsonText);
+
+    return { success: true, analysis };
+  } catch (error) {
+    console.error("Failed to generate portfolio health analysis:", error);
+    return { success: false, message: "AI Analysis failed." };
   }
 }

@@ -4,7 +4,9 @@ export const NAV_ITEMS = [
     { href: '/watchlist', label: 'Watchlist' },
     { href: '/portfolio', label: 'Portfolio' },
     { href: '/journal', label: 'Journal' },
+    { href: '/backtest', label: 'Backtester' },
 ];
+
 
 // ALERT_TYPE_OPTIONS
 export const ALERT_TYPE_OPTIONS = [

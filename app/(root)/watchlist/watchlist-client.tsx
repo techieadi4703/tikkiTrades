@@ -25,7 +25,7 @@ const TypingIndicator = () => (
   <motion.div
     initial={{ opacity: 0, y: 5 }}
     animate={{ opacity: 1, y: 0 }}
-    className="mr-auto flex gap-1 px-4 py-3 bg-white/[0.05] border border-white/5 rounded-2xl items-center"
+    className="mr-auto flex gap-1 px-4 py-3 bg-secondary/30 border border-border rounded-2xl items-center"
   >
     <motion.div
       animate={{ scale: [1, 1.2, 1] }}
@@ -48,9 +48,9 @@ const TypingIndicator = () => (
 const SuggestedQuestion = ({ question, onClick }: { question: string, onClick: (q: string) => void }) => (
   <button
     onClick={() => onClick(question)}
-    className="group flex items-center gap-2 whitespace-nowrap rounded-lg border border-white/10 bg-white/[0.03] px-3 py-1.5 text-[11px] font-medium text-gray-400 transition-all hover:bg-emerald-500/10 hover:border-emerald-500/30 hover:text-emerald-400 active:scale-95"
+    className="group flex items-center gap-2 whitespace-nowrap rounded-lg border border-border bg-secondary/30 px-3 py-1.5 text-[11px] font-medium text-muted-foreground transition-all hover:bg-emerald-500/10 hover:border-emerald-500/30 hover:text-emerald-400 active:scale-95"
   >
-    <HelpCircle size={12} className="text-gray-600 group-hover:text-emerald-500" />
+    <HelpCircle size={12} className="text-muted-foreground group-hover:text-emerald-500" />
     {question}
   </button>
 );
@@ -104,14 +104,14 @@ const WatchlistChatbot = ({ data }: { data: WatchlistItem[] }) => {
   ];
 
   return (
-    <div className="flex flex-col h-full bg-black/40 backdrop-blur-2xl border border-white/5 rounded-2xl overflow-hidden shadow-2xl relative">
-      <div className="p-5 border-b border-white/5 bg-white/[0.02] flex items-center justify-between">
+    <div className="flex flex-col h-full bg-black/40 backdrop-blur-2xl border border-border rounded-2xl overflow-hidden shadow-2xl relative">
+      <div className="p-5 border-b border-border bg-secondary/30 flex items-center justify-between">
         <div className="flex items-center gap-3">
            <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">
               <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_15px_rgba(16,185,129,0.6)]" />
            </div>
            <div>
-             <h2 className="text-xs font-black text-white uppercase tracking-[0.2em]">Watchlist AI</h2>
+             <h2 className="text-xs font-black text-foreground uppercase tracking-[0.2em]">Watchlist AI</h2>
              <p className="text-[10px] text-emerald-500/60 font-bold uppercase tracking-tight flex items-center gap-1.5">
                <Sparkles size={10} />
                Premium Assistant
@@ -134,8 +134,8 @@ const WatchlistChatbot = ({ data }: { data: WatchlistItem[] }) => {
             <div className={`flex items-center gap-2 mb-1.5 opacity-40 px-1`}>
               {message.role === "user" ? (
                 <>
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-white">You</span>
-                  <User size={10} className="text-white" />
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-foreground">You</span>
+                  <User size={10} className="text-foreground" />
                 </>
               ) : (
                 <>
@@ -148,16 +148,16 @@ const WatchlistChatbot = ({ data }: { data: WatchlistItem[] }) => {
             <div
               className={
                 message.role === "user"
-                  ? "max-w-[85%] rounded-2xl rounded-tr-none bg-emerald-600 text-white px-4 py-3 text-sm font-medium shadow-xl shadow-emerald-900/20 border border-emerald-400/20"
-                  : "max-w-[85%] rounded-2xl rounded-tl-none bg-white/[0.06] border border-white/10 text-gray-100 px-4 py-3 text-sm leading-relaxed shadow-lg backdrop-blur-md"
+                  ? "max-w-[85%] rounded-2xl rounded-tr-none bg-emerald-600 text-foreground px-4 py-3 text-sm font-medium shadow-xl shadow-emerald-900/20 border border-emerald-400/20"
+                  : "max-w-[85%] rounded-2xl rounded-tl-none bg-secondary/30 border border-border text-foreground px-4 py-3 text-sm leading-relaxed shadow-lg backdrop-blur-md"
               }
             >
               <div className="prose prose-invert prose-sm max-w-none prose-p:leading-relaxed prose-strong:text-emerald-400 prose-strong:font-black">
                 <ReactMarkdown 
                   components={{
-                    table: ({node, ...props}) => <div className="overflow-x-auto my-2 rounded-lg border border-white/10"><table className="w-full text-xs" {...props} /></div>,
-                    th: ({node, ...props}) => <th className="bg-white/5 px-2 py-1 text-left font-bold" {...props} />,
-                    td: ({node, ...props}) => <td className="px-2 py-1 border-t border-white/5" {...props} />,
+                    table: ({node, ...props}) => <div className="overflow-x-auto my-2 rounded-lg border border-border"><table className="w-full text-xs" {...props} /></div>,
+                    th: ({node, ...props}) => <th className="bg-secondary/50 px-2 py-1 text-left font-bold" {...props} />,
+                    td: ({node, ...props}) => <td className="px-2 py-1 border-t border-border" {...props} />,
                   }}
                 >
                   {message.content}
@@ -169,7 +169,7 @@ const WatchlistChatbot = ({ data }: { data: WatchlistItem[] }) => {
         {isTyping && <TypingIndicator />}
       </div>
 
-      <div className="flex-none p-5 bg-white/[0.02] border-t border-white/5">
+      <div className="flex-none p-5 bg-secondary/30 border-t border-border">
         <div className="flex gap-2 overflow-x-auto pb-4 scrollbar-none">
           {SUGGESTED_QUESTIONS.map((q) => (
             <SuggestedQuestion key={q} question={q} onClick={handleSend} />
@@ -185,11 +185,11 @@ const WatchlistChatbot = ({ data }: { data: WatchlistItem[] }) => {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="Ask about performance, volume, insights..."
-              className="w-full rounded-2xl border border-white/10 bg-white/[0.03] pl-5 pr-12 py-4 text-sm text-white placeholder:text-gray-600 focus:border-emerald-500/50 transition-all focus:outline-none focus:ring-1 focus:ring-emerald-500/20 shadow-inner group-hover:border-white/20"
+              className="w-full rounded-2xl border border-border bg-secondary/30 pl-5 pr-12 py-4 text-sm text-foreground placeholder:text-muted-foreground focus:border-emerald-500/50 transition-all focus:outline-none focus:ring-1 focus:ring-emerald-500/20 shadow-inner group-hover:border-border"
               disabled={isTyping}
             />
-            <div className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-xl bg-white/[0.04] border border-white/5 opacity-40 group-hover:opacity-100 transition-opacity">
-               <span className="text-[10px] font-bold text-gray-500">⌘↵</span>
+            <div className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-xl bg-secondary/30 border border-border opacity-40 group-hover:opacity-100 transition-opacity">
+               <span className="text-[10px] font-bold text-muted-foreground">⌘↵</span>
             </div>
           </div>
           <button
@@ -272,8 +272,8 @@ export default function WatchlistClient({
         className="flex-none mb-4"
       >
         <div>
-          <h1 className="text-3xl font-bold text-white tracking-tight">My Watchlist</h1>
-          <p className="text-gray-500 text-sm mt-1">Manage and track your primary market assets.</p>
+          <h1 className="text-3xl font-bold text-foreground tracking-tight">My Watchlist</h1>
+          <p className="text-muted-foreground text-sm mt-1">Manage and track your primary market assets.</p>
         </div>
       </motion.div>
 
@@ -283,10 +283,10 @@ export default function WatchlistClient({
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.1 }}
-          className="flex-1 flex flex-col bg-white/[0.02] backdrop-blur-xl border border-white/5 rounded-2xl overflow-hidden shadow-2xl"
+          className="flex-1 flex flex-col bg-secondary/30 backdrop-blur-xl border border-border rounded-2xl overflow-hidden shadow-2xl"
         >
           <div
-            className="grid bg-white/[0.03] px-6 py-4 text-[11px] font-bold uppercase tracking-wider text-gray-500 border-b border-white/5"
+            className="grid bg-secondary/30 px-6 py-4 text-[11px] font-bold uppercase tracking-wider text-muted-foreground border-b border-border"
             style={{
               gridTemplateColumns: "50px 2fr 1fr 1fr 1fr 1fr 1.5fr",
             }}
@@ -313,7 +313,7 @@ export default function WatchlistClient({
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, x: -20, scale: 0.95 }}
                     transition={{ duration: 0.3 }}
-                    className="grid items-center px-6 py-5 group hover:bg-white/[0.03] transition-all cursor-default"
+                    className="grid items-center px-6 py-5 group hover:bg-secondary/30 transition-all cursor-default"
                     style={{
                       gridTemplateColumns: "50px 2fr 1fr 1fr 1fr 1fr 1.5fr",
                     }}
@@ -324,13 +324,13 @@ export default function WatchlistClient({
 
                     <Link
                       href={`/stocks/${item.symbol}`}
-                      className="font-bold text-white group-hover:text-emerald-400 transition-colors truncate pr-4"
+                      className="font-bold text-foreground group-hover:text-emerald-400 transition-colors truncate pr-4"
                     >
                       {item.company}
                     </Link>
 
-                    <div className="text-gray-400 font-mono text-sm">{item.symbol}</div>
-                    <div className="text-white font-mono font-medium">${item.price.toFixed(2)}</div>
+                    <div className="text-muted-foreground font-mono text-sm">{item.symbol}</div>
+                    <div className="text-foreground font-mono font-medium">${item.price.toFixed(2)}</div>
 
                     <div className={`font-mono text-sm ${isUp ? "text-emerald-400" : "text-red-400"}`}>
                       {isUp ? '+' : ''}{item.change.toFixed(2)}
@@ -358,7 +358,7 @@ export default function WatchlistClient({
             
             {data.length === 0 && (
               <div className="py-20 text-center">
-                <p className="text-gray-500">Your watchlist is empty.</p>
+                <p className="text-muted-foreground">Your watchlist is empty.</p>
                 <Link href="/" className="text-emerald-500 hover:underline mt-2 inline-block">Explore markets</Link>
               </div>
             )}
