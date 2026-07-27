@@ -10,7 +10,7 @@ import { getUnreadNotifications } from '@/lib/actions/notification.actions'
 
 const Header =async ({user}:{user:User}) => {
     const initialStocks=await searchStocks();
-    const notifications = user?.id ? await getUnreadNotifications(user.id) : [];
+    const notifications = await getUnreadNotifications();
   return (
     <header className='sticky top-0 z-50 bg-black/40 backdrop-blur-md border-b border-white/5'>
         <div className='container flex justify-between items-center px-6 py-4'>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Bell, Check, Trash2 } from 'lucide-react';
 import {
@@ -11,6 +11,8 @@ import {
 import { Button } from '@/components/ui/button';
 import { markNotificationRead, markAllNotificationsRead } from '@/lib/actions/notification.actions';
 import { formatDistanceToNow } from 'date-fns';
+import { useSocket } from '@/components/providers/SocketProvider';
+import { toast } from 'sonner';
 
 type Notification = {
   _id: string;
@@ -28,6 +30,32 @@ export default function NotificationBell({
 }) {
   const [notifications, setNotifications] = useState<Notification[]>(initialNotifications || []);
   const [isOpen, setIsOpen] = useState(false);
+  const { socket, isConnected } = useSocket();
+
+  useEffect(() => {
+    if (!socket) return;
+
+    socket.emit('subscribe:portfolio', userId);
+
+    const handleAlertTriggered = (data: { ticker: string, currentPrice: number, targetPrice: number, condition: string, message: string }) => {
+      setNotifications((prev) => [
+        {
+          _id: Math.random().toString(),
+          message: data.message,
+          createdAt: new Date().toISOString(),
+          read: false,
+        },
+        ...prev,
+      ]);
+      toast.success(data.message);
+    };
+
+    socket.on('alert:triggered', handleAlertTriggered);
+
+    return () => {
+      socket.off('alert:triggered', handleAlertTriggered);
+    };
+  }, [socket, isConnected, userId]);
 
   const handleMarkAsRead = async (id: string) => {
     // Optimistic update
@@ -43,7 +71,7 @@ export default function NotificationBell({
   const handleMarkAllAsRead = async () => {
     setNotifications([]);
     try {
-      await markAllNotificationsRead(userId);
+      await markAllNotificationsRead();
     } catch (error) {
       console.error('Failed to mark all as read', error);
     }

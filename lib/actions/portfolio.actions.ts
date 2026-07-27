@@ -6,6 +6,7 @@ import { auth } from '../better-auth/auth';
 import { headers } from 'next/headers';
 import { revalidatePath } from 'next/cache';
 import { getQuote, getCompanyProfile } from './finnhub.actions';
+import { calculatePositionMath } from '../portfolio-math';
 
 export type PortfolioHolding = {
   _id: string;
@@ -47,6 +48,12 @@ export async function getPortfolioHoldings(): Promise<PortfolioHolding[]> {
     const items = await Portfolio.find({ userId }).lean();
     if (!items || items.length === 0) return [];
 
+    /*
+     * NOTE ON BATCHING: Finnhub's free tier does not support batch quote retrieval
+     * for multiple symbols in a single request. We perform individual Promise.all fetches
+     * which are optimized by our Redis caching layer (with precise TTLs) to prevent
+     * hitting rate limits.
+     */
     const holdingsWithData = await Promise.all(
       items.map(async (item: any) => {
         try {
@@ -59,13 +66,12 @@ export async function getPortfolioHoldings(): Promise<PortfolioHolding[]> {
           const previousClose = quoteData?.pc || currentPrice;
           const name = profileData?.name || item.symbol;
 
-          const totalValue = currentPrice * item.shares;
-          const totalCost = item.averagePrice * item.shares;
-          const unrealizedPnL = totalValue - totalCost;
-          const unrealizedPnLPercent = totalCost > 0 ? (unrealizedPnL / totalCost) * 100 : 0;
-          
-          const dailyChange = (currentPrice - previousClose) * item.shares;
-          const dailyChangePercent = previousClose > 0 ? ((currentPrice - previousClose) / previousClose) * 100 : 0;
+          const math = calculatePositionMath({
+            currentPrice,
+            previousClose,
+            shares: item.shares,
+            averagePrice: item.averagePrice,
+          });
 
           return {
             _id: item._id.toString(),
@@ -76,17 +82,17 @@ export async function getPortfolioHoldings(): Promise<PortfolioHolding[]> {
             datePurchased: item.datePurchased,
             currentPrice,
             previousClose,
-            totalValue,
-            totalCost,
-            unrealizedPnL,
-            unrealizedPnLPercent,
-            dailyChange,
-            dailyChangePercent,
+            ...math,
           };
         } catch (err) {
           console.error(`Error fetching data for ${item.symbol}:`, err);
           // Fallback if Finnhub fails
-          const totalCost = item.averagePrice * item.shares;
+          const math = calculatePositionMath({
+            currentPrice: item.averagePrice,
+            previousClose: item.averagePrice,
+            shares: item.shares,
+            averagePrice: item.averagePrice,
+          });
           return {
             _id: item._id.toString(),
             symbol: item.symbol,
@@ -96,12 +102,7 @@ export async function getPortfolioHoldings(): Promise<PortfolioHolding[]> {
             datePurchased: item.datePurchased,
             currentPrice: item.averagePrice,
             previousClose: item.averagePrice,
-            totalValue: totalCost,
-            totalCost,
-            unrealizedPnL: 0,
-            unrealizedPnLPercent: 0,
-            dailyChange: 0,
-            dailyChangePercent: 0,
+            ...math,
           };
         }
       })

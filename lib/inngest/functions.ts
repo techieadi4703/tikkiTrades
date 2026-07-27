@@ -7,6 +7,7 @@ import { getNews, getQuote } from "@/lib/actions/finnhub.actions";
 import { getFormattedTodayDate } from "@/lib/utils";
 import { getActiveAlerts, markAlertTriggered } from "@/lib/actions/alert.actions";
 import { createNotification } from "@/lib/actions/notification.actions";
+import { shouldTriggerAlert } from "@/lib/portfolio-math";
 
 export const sendSignUpEmail = inngest.createFunction(
     { id: 'sign-up-email', triggers: [{ event: 'app/user.created' }] },
@@ -148,14 +149,7 @@ export const checkPriceAlerts = inngest.createFunction(
         const triggeredAlerts = activeAlerts.filter(alert => {
             const currentPrice = prices[alert.ticker];
             if (!currentPrice) return false;
-            
-            if (alert.condition === 'above' && currentPrice >= alert.targetPrice) {
-                return true;
-            }
-            if (alert.condition === 'below' && currentPrice <= alert.targetPrice) {
-                return true;
-            }
-            return false;
+            return shouldTriggerAlert(alert.condition as 'above' | 'below', currentPrice, alert.targetPrice);
         });
 
         if (triggeredAlerts.length === 0) {
@@ -201,6 +195,15 @@ export const checkPriceAlerts = inngest.createFunction(
                     const message = `Price Alert: ${alert.ticker} has ${directionText} your target of $${alert.targetPrice} (Current: $${currentPrice})`;
                     try {
                         await createNotification(alert.userId, message);
+                        if (typeof global !== 'undefined') {
+                            (global as any).io?.to(`portfolio:${alert.userId}`).emit('alert:triggered', {
+                                ticker: alert.ticker,
+                                currentPrice,
+                                targetPrice: alert.targetPrice,
+                                condition: alert.condition,
+                                message
+                            });
+                        }
                     } catch (e) {
                         console.error(`Failed to create notification for ${alert.userId}`, e);
                     }

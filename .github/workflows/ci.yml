@@ -1,0 +1,46 @@
+name: Tikki Trades CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Run Linter
+      run: npm run lint
+
+    - name: Run Tests
+      run: npm run test
+
+    - name: Run Build
+      run: npm run build
+      env:
+        # Mock env vars needed at build time
+        NEXT_PUBLIC_HOST_URL: http://localhost:3000
+        NEXT_PUBLIC_SITE_URL: http://localhost:3000
+        BETTER_AUTH_SECRET: mock_secret_value_for_build
+        BETTER_AUTH_URL: http://localhost:3000
+        GEMINI_API_KEY: mock_gemini_key_for_build
+        GROQ_API_KEY: mock_groq_key_for_build
+        MONGODB_URI: mongodb://localhost:27017/tikki-trades
+        NEXT_PUBLIC_FINNHUB_API_KEY: mock_finnhub_key
+        FINNHUB_API_KEY: mock_finnhub_key
+        REDIS_URL: redis://localhost:6379
+        NEXT_PUBLIC_SENTRY_DSN: mock_sentry_dsn

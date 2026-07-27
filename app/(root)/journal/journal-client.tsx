@@ -34,7 +34,7 @@ interface JournalEntry {
   createdAt: string;
 }
 
-export default function JournalClient({ initialEntries, userId }: { initialEntries: JournalEntry[], userId: string }) {
+export default function JournalClient({ initialEntries }: { initialEntries: JournalEntry[] }) {
   const [entries, setEntries] = useState<JournalEntry[]>(initialEntries);
   const [selectedEntry, setSelectedEntry] = useState<JournalEntry | null>(initialEntries[0] || null);
   const [isCreatingNew, setIsCreatingNew] = useState(!initialEntries.length);
@@ -56,7 +56,7 @@ export default function JournalClient({ initialEntries, userId }: { initialEntri
     
     try {
       loadingToastId = toast.loading("Gemini is reviewing your trade...");
-      const newEntry = await createJournalEntry(userId, entryText, ticker);
+      const newEntry = await createJournalEntry(entryText, ticker);
       setEntries([newEntry, ...entries]);
       setSelectedEntry(newEntry);
       setIsCreatingNew(false);

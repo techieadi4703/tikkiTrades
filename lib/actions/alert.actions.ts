@@ -44,9 +44,19 @@ export async function createAlert({
   }
 }
 
-export async function getUserAlerts(userId: string) {
+export async function getUserAlerts() {
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (!session?.user?.email) return [];
+
   try {
-    await connectToDatabase();
+    const mongoose = await connectToDatabase();
+    const db = mongoose.connection.db;
+    if (!db) throw new Error("MongoDB connection not found");
+
+    const user = await db.collection("user").findOne({ email: session.user.email });
+    if (!user) return [];
+
+    const userId = user.id || String(user._id);
     
     const alerts = await Alert.find({ userId }).sort({ createdAt: -1 });
     return JSON.parse(JSON.stringify(alerts));
