@@ -25,6 +25,15 @@ export const getAuth = async () => {
             maxPasswordLength: 128,
             autoSignIn: true,
         },
+        user: {
+            additionalFields: {
+                role: {
+                    type: "string",
+                    required: false,
+                    defaultValue: "User"
+                }
+            }
+        },
         plugins: [nextCookies()],
     });
 

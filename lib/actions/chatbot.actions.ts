@@ -3,6 +3,9 @@
 import OpenAI from 'openai';
 import { WATCHLIST_ASSISTANT_PROMPT } from '@/lib/chatbot/prompts';
 
+import crypto from 'crypto';
+import { fetchWithCache } from '@/lib/redis';
+
 export interface ChatMessage {
   role: 'user' | 'bot';
   content: string;
@@ -14,16 +17,6 @@ export async function getWatchlistAIResponse(
   history: ChatMessage[] = []
 ) {
   try {
-    const apiKey = process.env.GROQ_API_KEY;
-    if (!apiKey) {
-      throw new Error('GROQ_API_KEY is not defined in environment variables.');
-    }
-
-    const groq = new OpenAI({
-      apiKey,
-      baseURL: 'https://api.groq.com/openai/v1',
-    });
-
     const formattedWatchlist = watchlistData.map(item => ({
       symbol: item.symbol,
       company: item.company,
@@ -33,34 +26,50 @@ export async function getWatchlistAIResponse(
       volume: item.volume
     }));
 
-    const systemPrompt = WATCHLIST_ASSISTANT_PROMPT.replace(
-      '{{watchlistData}}',
-      JSON.stringify(formattedWatchlist, null, 2)
-    );
+    const inputDataStr = JSON.stringify({ userQuery, history, symbols: formattedWatchlist.map(w => w.symbol) });
+    const hash = crypto.createHash('md5').update(inputDataStr).digest('hex');
+    const cacheKey = `ai:chatbot:${hash}`;
 
-    const messages = [
-      { role: 'system' as const, content: systemPrompt },
-      ...history.map(msg => ({
-        role: (msg.role === 'user' ? 'user' : 'assistant') as 'user' | 'assistant',
-        content: msg.content
-      })),
-      { role: 'user' as const, content: userQuery }
-    ];
+    const cachedResponse = await fetchWithCache(cacheKey, async () => {
+      const apiKey = process.env.GROQ_API_KEY;
+      if (!apiKey) {
+        throw new Error('GROQ_API_KEY is not defined in environment variables.');
+      }
 
-    const completion = await groq.chat.completions.create({
-      messages,
-      model: 'llama-3.3-70b-versatile',
-      temperature: 0.7,
-      max_tokens: 1024,
-      top_p: 1,
-      stream: false,
-    });
+      const groq = new OpenAI({
+        apiKey,
+        baseURL: 'https://api.groq.com/openai/v1',
+      });
 
-    const text = completion.choices[0]?.message?.content || "";
+      const systemPrompt = WATCHLIST_ASSISTANT_PROMPT.replace(
+        '{{watchlistData}}',
+        JSON.stringify(formattedWatchlist, null, 2)
+      );
+
+      const messages = [
+        { role: 'system' as const, content: systemPrompt },
+        ...history.map(msg => ({
+          role: (msg.role === 'user' ? 'user' : 'assistant') as 'user' | 'assistant',
+          content: msg.content
+        })),
+        { role: 'user' as const, content: userQuery }
+      ];
+
+      const completion = await groq.chat.completions.create({
+        messages,
+        model: 'llama-3.3-70b-versatile',
+        temperature: 0.7,
+        max_tokens: 1024,
+        top_p: 1,
+        stream: false,
+      });
+
+      return completion.choices[0]?.message?.content || "";
+    }, 3600); // Cache for 1 hour
 
     return {
       success: true,
-      content: text
+      content: cachedResponse
     };
   } catch (error: any) {
     console.error('getWatchlistAIResponse error:', error);

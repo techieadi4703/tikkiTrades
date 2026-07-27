@@ -4,6 +4,7 @@ import { getDateRange, validateArticle, formatArticle } from '@/lib/utils';
 import { POPULAR_STOCK_SYMBOLS } from '@/lib/constants';
 import { cache } from 'react';
 import YahooFinance from 'yahoo-finance2';
+import { fetchWithCache } from '@/lib/redis';
 const yahooFinance = new YahooFinance({ suppressNotices: ['yahooSurvey'] });
 const FINNHUB_BASE_URL = 'https://finnhub.io/api/v1';
 const NEXT_PUBLIC_FINNHUB_API_KEY = process.env.NEXT_PUBLIC_FINNHUB_API_KEY ?? '';
@@ -279,37 +280,46 @@ export async function getYahooNews(symbol: string) {
 // --- Primary Actions ---
 
 export async function getCompanyProfile(symbol: string) {
-  if (symbol.includes('.')) return getYahooCompanyProfile(symbol);
-  try {
-    const token = process.env.FINNHUB_API_KEY ?? process.env.NEXT_PUBLIC_FINNHUB_API_KEY;
-    const url = `${FINNHUB_BASE_URL}/stock/profile2?symbol=${symbol}&token=${token}`;
-    return await fetchJSON<any>(url, 3600);
-  } catch (error: any) {
-    console.warn(`Failed to fetch company profile from Finnhub for ${symbol}, falling back to Yahoo:`, error.message);
-    return getYahooCompanyProfile(symbol);
-  }
+  const cacheKey = `companyProfile:${symbol}`;
+  return fetchWithCache(cacheKey, async () => {
+    if (symbol.includes('.')) return getYahooCompanyProfile(symbol);
+    try {
+      const token = process.env.FINNHUB_API_KEY ?? process.env.NEXT_PUBLIC_FINNHUB_API_KEY;
+      const url = `${FINNHUB_BASE_URL}/stock/profile2?symbol=${symbol}&token=${token}`;
+      return await fetchJSON<any>(url, 3600);
+    } catch (error: any) {
+      console.warn(`Failed to fetch company profile from Finnhub for ${symbol}, falling back to Yahoo:`, error.message);
+      return getYahooCompanyProfile(symbol);
+    }
+  }, 86400); // cache for 24 hours
 }
 
 export async function getQuote(symbol: string) {
-  if (symbol.includes('.')) return getYahooQuote(symbol);
-  try {
-    const token = process.env.FINNHUB_API_KEY ?? process.env.NEXT_PUBLIC_FINNHUB_API_KEY;
-    const url = `https://finnhub.io/api/v1/quote?symbol=${symbol}&token=${token}`;
-    return await fetchJSON<any>(url, 30);
-  } catch (error: any) {
-    console.warn(`Failed to fetch quote from Finnhub for ${symbol}, falling back to Yahoo:`, error.message);
-    return getYahooQuote(symbol);
-  }
+  const cacheKey = `quote:${symbol}`;
+  return fetchWithCache(cacheKey, async () => {
+    if (symbol.includes('.')) return getYahooQuote(symbol);
+    try {
+      const token = process.env.FINNHUB_API_KEY ?? process.env.NEXT_PUBLIC_FINNHUB_API_KEY;
+      const url = `https://finnhub.io/api/v1/quote?symbol=${symbol}&token=${token}`;
+      return await fetchJSON<any>(url, 30);
+    } catch (error: any) {
+      console.warn(`Failed to fetch quote from Finnhub for ${symbol}, falling back to Yahoo:`, error.message);
+      return getYahooQuote(symbol);
+    }
+  }, 30); // cache for 30 seconds
 }
 
 export async function getBasicFinancials(symbol: string) {
-  if (symbol.includes('.')) return getYahooBasicFinancials(symbol);
-  try {
-    const token = process.env.FINNHUB_API_KEY ?? process.env.NEXT_PUBLIC_FINNHUB_API_KEY;
-    const url = `${FINNHUB_BASE_URL}/stock/metric?symbol=${symbol}&metric=all&token=${token}`;
-    return await fetchJSON<any>(url, 3600);
-  } catch (error: any) {
-    console.warn(`Failed to fetch basic financials from Finnhub for ${symbol}, falling back to Yahoo:`, error.message);
-    return getYahooBasicFinancials(symbol);
-  }
+  const cacheKey = `basicFinancials:${symbol}`;
+  return fetchWithCache(cacheKey, async () => {
+    if (symbol.includes('.')) return getYahooBasicFinancials(symbol);
+    try {
+      const token = process.env.FINNHUB_API_KEY ?? process.env.NEXT_PUBLIC_FINNHUB_API_KEY;
+      const url = `${FINNHUB_BASE_URL}/stock/metric?symbol=${symbol}&metric=all&token=${token}`;
+      return await fetchJSON<any>(url, 3600);
+    } catch (error: any) {
+      console.warn(`Failed to fetch basic financials from Finnhub for ${symbol}, falling back to Yahoo:`, error.message);
+      return getYahooBasicFinancials(symbol);
+    }
+  }, 86400); // cache for 24 hours
 }

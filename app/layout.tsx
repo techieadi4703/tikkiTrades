@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner"
 import AnimatedBackground from "@/components/auth/AnimatedBackground";
+import { SocketProvider } from "@/components/providers/SocketProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,7 +31,9 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased selection:bg-emerald-500/30`}
       >
         <AnimatedBackground />
-        {children}
+        <SocketProvider>
+          {children}
+        </SocketProvider>
         <Toaster position="bottom-left" />
       </body>
     </html>
