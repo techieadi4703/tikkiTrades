@@ -9,8 +9,7 @@ import { getActiveAlerts, markAlertTriggered } from "@/lib/actions/alert.actions
 import { createNotification } from "@/lib/actions/notification.actions";
 
 export const sendSignUpEmail = inngest.createFunction(
-    { id: 'sign-up-email' },
-    { event: 'app/user.created'},
+    { id: 'sign-up-email', triggers: [{ event: 'app/user.created' }] },
     async ({ event, step }) => {
         const prompt = PERSONALIZED_WELCOME_EMAIL_PROMPT;
 
@@ -44,8 +43,7 @@ export const sendSignUpEmail = inngest.createFunction(
 )
 
 export const sendDailyNewsSummary = inngest.createFunction(
-    { id: 'daily-news-summary' },
-    [ { event: 'app/send.daily.news' }, { cron: '0 12 * * *' } ],
+    { id: 'daily-news-summary', triggers: [ { event: 'app/send.daily.news' }, { cron: '0 12 * * *' } ] },
     async ({ step }) => {
         // Step #1: Get all users for news delivery
         const users = await step.run('get-all-users', getAllUsersForNewsEmail)
@@ -118,8 +116,7 @@ export const sendDailyNewsSummary = inngest.createFunction(
 )
 
 export const checkPriceAlerts = inngest.createFunction(
-    { id: 'check-price-alerts' },
-    [ { event: 'app/check.price.alerts' }, { cron: '*/15 * * * *' } ],
+    { id: 'check-price-alerts', triggers: [ { event: 'app/check.price.alerts' }, { cron: '*/15 * * * *' } ] },
     async ({ step }) => {
         // Step #1: Get all active alerts
         const activeAlerts = await step.run('get-active-alerts', getActiveAlerts);
