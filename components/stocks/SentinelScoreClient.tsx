@@ -9,17 +9,20 @@ export default function SentinelScoreClient({ scoreData }: { scoreData?: Sentine
   const [isOpen, setIsOpen] = useState(false);
   const [animatedScore, setAnimatedScore] = useState(0);
 
-  if (!scoreData) return null;
-
-  const { score, verdict, rationale, bulls, bears } = scoreData;
+  const score = scoreData?.score ?? 0;
 
   useEffect(() => {
+    if (!scoreData) return;
     // Small delay to let the component mount before animating
     const timer = setTimeout(() => {
       setAnimatedScore(score);
     }, 300);
     return () => clearTimeout(timer);
-  }, [score]);
+  }, [score, scoreData]);
+
+  if (!scoreData) return null;
+
+  const { verdict, rationale, bulls, bears } = scoreData;
 
   // Determine color based on score
   const getColor = (val: number) => {

@@ -165,7 +165,7 @@ export default function PortfolioClient({ initialHoldings }: { initialHoldings: 
 
           {/* Card 3: Today's Return */}
           <div className="bg-[#0F0F0F] border border-white/5 rounded-2xl p-6 relative overflow-hidden group">
-             <p className="text-sm font-medium text-gray-400 mb-1">Today's Profit / Loss</p>
+             <p className="text-sm font-medium text-gray-400 mb-1">Today&apos;s Profit / Loss</p>
              <h2 className={`text-3xl font-bold tracking-tight ${totalDailyChange >= 0 ? 'text-emerald-500' : 'text-red-500'}`}>
                {totalDailyChange >= 0 ? '+' : ''}${totalDailyChange.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
              </h2>

@@ -104,7 +104,7 @@ const AuthVisualPanel = () => {
             transition={{ duration: 0.4 }}
           >
             <blockquote className="text-base text-gray-300 italic mb-4 leading-relaxed line-clamp-2">
-              "{testimonial.quote}"
+              &quot;{testimonial.quote}&quot;
             </blockquote>
             <div className="flex items-center gap-3">
               <div className={`w-10 h-10 rounded-full bg-gradient-to-tr ${testimonial.color} shadow-lg shadow-white/5 flex items-center justify-center text-white text-sm font-bold`}>

@@ -9,21 +9,30 @@ interface LiveChartProps {
 }
 
 const LiveChart = ({ color = "#22c55e", trend = "neutral" }: LiveChartProps) => {
-  const [data, setData] = useState<number[]>([]);
+  const [data, setData] = useState<number[]>(() =>
+    Array.from({ length: 24 }, (_, i) => {
+      const base = trend === "up" ? 20 + i * 2 : trend === "down" ? 80 - i * 2 : 50;
+      return base + (Math.random() - 0.5) * 45;
+    })
+  );
   const [hoverIndex, setHoverIndex] = useState<number | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Generate initial spiky data
+    // Generate initial spiky data on trend change, deferred to prevent synchronous render warnings
     const initialData = Array.from({ length: 24 }, (_, i) => {
       const base = trend === "up" ? 20 + i * 2 : trend === "down" ? 80 - i * 2 : 50;
       return base + (Math.random() - 0.5) * 45; // Increased variance for spikiness
     });
-    setData(initialData);
+
+    const timer = setTimeout(() => {
+      setData(initialData);
+    }, 0);
 
     // Update data with sharp shifts
     const interval = setInterval(() => {
       setData((prev) => {
+        if (prev.length === 0) return [];
         const last = prev[prev.length - 1];
         let next;
         const shift = (Math.random() - 0.5) * 40; // Sharper real-time updates
@@ -38,7 +47,10 @@ const LiveChart = ({ color = "#22c55e", trend = "neutral" }: LiveChartProps) => 
       });
     }, 1500); // Slightly faster updates for a "live" feel
 
-    return () => clearInterval(interval);
+    return () => {
+      clearTimeout(timer);
+      clearInterval(interval);
+    };
   }, [trend]);
 
 

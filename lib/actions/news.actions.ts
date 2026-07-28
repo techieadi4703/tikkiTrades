@@ -76,7 +76,7 @@ ${topArticles.map((a, i) => `[${i}] Headline: "${a.headline}". Summary: "${a.sum
         }
 
         for (let i = 0; i < topArticles.length; i++) {
-          let sentiment = sentiments[i] || 'Neutral';
+          const sentiment = sentiments[i] || 'Neutral';
           if (sentiment.toLowerCase().includes('positive')) topArticles[i].sentiment = 'Positive';
           else if (sentiment.toLowerCase().includes('negative')) topArticles[i].sentiment = 'Negative';
           else topArticles[i].sentiment = 'Neutral';

@@ -205,6 +205,40 @@ const WatchlistChatbot = ({ data }: { data: WatchlistItem[] }) => {
   );
 };
 
+const SortHeader = ({
+  label,
+  k,
+  sortKey,
+  order,
+  handleSort,
+}: {
+  label: string;
+  k: SortKey;
+  sortKey: SortKey;
+  order: "asc" | "desc";
+  handleSort: (key: SortKey) => void;
+}) => {
+  const isActive = sortKey === k;
+
+  return (
+    <button
+      onClick={() => handleSort(k)}
+      className="flex items-center gap-1 hover:text-emerald-400 transition-colors cursor-pointer"
+    >
+      {label}
+      {isActive ? (
+        order === "asc" ? (
+          <ArrowUp size={14} />
+        ) : (
+          <ArrowDown size={14} />
+        )
+      ) : (
+        <ArrowUpDown size={14} className="opacity-40" />
+      )}
+    </button>
+  );
+};
+
 export default function WatchlistClient({
   initialData,
 }: {
@@ -242,28 +276,6 @@ export default function WatchlistClient({
     setData((prev) => prev.filter((item) => item.symbol !== symbol));
   };
 
-  const SortHeader = ({ label, k }: { label: string; k: SortKey }) => {
-    const isActive = sortKey === k;
-
-    return (
-      <button
-        onClick={() => handleSort(k)}
-        className="flex items-center gap-1 hover:text-emerald-400 transition-colors cursor-pointer"
-      >
-        {label}
-        {isActive ? (
-          order === "asc" ? (
-            <ArrowUp size={14} />
-          ) : (
-            <ArrowDown size={14} />
-          )
-        ) : (
-          <ArrowUpDown size={14} className="opacity-40" />
-        )}
-      </button>
-    );
-  };
-
   return (
     <div className="p-4 md:p-8 md:pt-0 max-w-[1600px] mx-auto h-[calc(100vh-70px)] overflow-hidden flex flex-col">
       <motion.div 
@@ -292,11 +304,11 @@ export default function WatchlistClient({
             }}
           >
             <div className="flex justify-center">★</div>
-            <SortHeader label="Company" k="company" />
+            <SortHeader label="Company" k="company" sortKey={sortKey} order={order} handleSort={handleSort} />
             <div className="flex items-center">Symbol</div>
-            <SortHeader label="Price" k="price" />
-            <SortHeader label="Change" k="change" />
-            <SortHeader label="Change %" k="changePercent" />
+            <SortHeader label="Price" k="price" sortKey={sortKey} order={order} handleSort={handleSort} />
+            <SortHeader label="Change" k="change" sortKey={sortKey} order={order} handleSort={handleSort} />
+            <SortHeader label="Change %" k="changePercent" sortKey={sortKey} order={order} handleSort={handleSort} />
             <div className="text-center">Action</div>
           </div>
 
