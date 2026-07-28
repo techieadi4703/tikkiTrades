@@ -2,9 +2,8 @@
 
 Tikki Trades is a **production-ready financial terminal** designed for modern traders. It leverages **Next.js 16**, **Framer Motion**, and **Multi-LLM Intelligence** (Gemini & Groq) to deliver a high-performance, interactive, and visually stunning market analysis experience.
 
-
 > **🏆 Premium Trading Terminal - Complete AI-First Overhaul**  
-> Rebranded to a cohesive "Emerald-on-Black" aesthetic with a 100% viewport-optimized layout and professional-grade AI coaching.
+> Rebranded to a cohesive "Emerald-on-Black" aesthetic with a 100% viewport-optimized layout, real-time WebSocket communication, Redis-backed intelligence caching, role-based security, and production-grade Docker/Sentry observability.
 
 ## 🏁 Full Platform Walkthrough
 
@@ -16,7 +15,7 @@ Experience the complete user journey from authentication to deep market analytic
 
 ## 🎯 Platform System Architecture
 
-Tikki Trades is built on a modular, multi-layered architecture designed for visual excellence and real-time financial data processing.
+Tikki Trades is built on a modular, multi-layered architecture designed for visual excellence, real-time financial data processing, and enterprise-grade resilience.
 
 ```mermaid
 graph TD
@@ -24,7 +23,7 @@ graph TD
     Trader((Trader / User))
     
     subgraph IH [Intelligence Hub]
-        Groq["Groq Llama 3.3 (Watchlist)"]
+        Groq["Groq Llama 3.3 (Watchlist Assistant)"]
         Gemini["Gemini 2.5 (Trade Coach)"]
     end
 
@@ -34,30 +33,47 @@ graph TD
         Nodemailer --> Emails
     end
 
-    subgraph CI [Client Interface]
+    subgraph CI [Client Interface & WebSockets]
         NextJS["Next.js 16 Terminal UI"]
+        SocketIO["Socket.io Client"]
+        NextJS <--> SocketIO
     end
 
-    subgraph DP [Data Providers]
+    subgraph SRV [Custom Server Engine]
+        ExpressSRV["Express Custom Server"]
+        SocketServer["Socket.io WS Server"]
+        PinoLogger["Pino Structured Logger"]
+        RedisLimit["Redis Rate Limiter"]
+        ExpressSRV <--> SocketServer
+        ExpressSRV --> PinoLogger
+        ExpressSRV --> RedisLimit
+    end
+
+    subgraph DP [Data Providers & Cache]
         Finnhub["Finnhub (Live Quotes)"]
         Yahoo["Yahoo Finance (History)"]
+        RedisCache["Redis Cache Layer"]
+        Finnhub --> RedisCache
+        Yahoo --> RedisCache
     end
 
     subgraph AS [Authentication & Storage]
-        BetterAuth["Better-Auth"]
+        BetterAuth["Better-Auth (RBAC)"]
         MongoDB["MongoDB Store"]
         BetterAuth --> MongoDB
     end
 
     subgraph WE [Workflow Engine]
-        Inngest["Inngest (Event Orchestrator)"]
+        Inngest["Inngest v4 (Event Orchestrator)"]
     end
 
     %% Interaction Flows
-    Trader <--> NextJS
-    NextJS --> AS
-    NextJS --> DP
-    NextJS <--> IH
+    Trader <--> CI
+    CI <--> ExpressSRV
+    SocketServer <== "Real-time updates" ==> SocketIO
+    ExpressSRV --> AS
+    ExpressSRV --> DP
+    ExpressSRV <--> IH
     
     IH -- "Generate Content" --> Nodemailer
     Emails -. "Direct to User" .-> Trader
@@ -65,11 +81,13 @@ graph TD
     AS -- "Trigger Events" --> WE
     WE -- "Execute Schedule" --> IH
     WE -- "Request Analysis" --> IH
+    WE -- "Broadcast Alerts" --> SocketServer
 
     %% Styling
     style IH fill:#064e3b,stroke:#10b981,color:#fff
     style CL fill:#064e3b,stroke:#10b981,color:#fff
     style CI fill:#064e3b,stroke:#10b981,color:#fff
+    style SRV fill:#022c22,stroke:#059669,color:#fff
     style DP fill:#064e3b,stroke:#10b981,color:#fff
     style AS fill:#064e3b,stroke:#10b981,color:#fff
     style WE fill:#064e3b,stroke:#10b981,color:#fff
@@ -80,44 +98,50 @@ graph TD
 - **Modern Web Interface**: Responsive layout grid with the **Geist** font family (Sans/Mono) for high-performance readability.
 - **Color Palette**: A curated emerald-on-black system (`#10b981`) for professional financial aesthetics.
 
-### **2. UX Engine Layer**
-- **Orchestrated Animations**: State-driven transitions and interactive elements powered by Framer Motion.
-- **Viewport Locking**: Strict content locking within the viewport to maintain a native "app-like" feel on desktop.
+### **2. Custom Server & WebSocket Layer**
+- **Express Custom Server**: Configured via [server.js](file:///Users/adityasrivastava/Desktop/Projects/tikki-trades/server.js) to bridge HTTP REST routes and Next.js page generation.
+- **Socket.io Integration**: Provides stateful room connections for stock details (`stock:${symbol}`) and user portfolio updates (`portfolio:${userId}`).
+- **Pino Observability**: Standardized JSON structured logging with custom request tracing using `x-request-id` header extraction.
 
-### **3. Feature Modules Layer**
-- **Watchlist Assistant**: Real-time asset queries and market analysis powered by **Groq (Llama 3.3 70B)**.
-- **AI Trade Coach**: Intelligent trade journaling and bias detection powered by **Gemini 2.5 Flash**.
-- **Portfolio Intelligence**: Real-time holding tracking with unrealized PnL analysis and growth metrics.
-- **Intelligent Mail Alerts**: Personalized onboarding, daily summaries, and 15-minute price sentinel alerts.
-- **Technical Analytics**: Professional-grade charting and gauge indicators via **TradingView** and **Yahoo Finance**.
+### **3. Distributed Caching & Rate Limiting**
+- **Redis Cache Client**: Managed via [lib/redis/index.ts](file:///Users/adityasrivastava/Desktop/Projects/tikki-trades/lib/redis/index.ts). Caches external stock profiles, prices, and basic metrics.
+- **AI Query Hashing**: MD5-hashes user chatbot history and context, avoiding duplicate expensive calls to Groq API endpoints.
+- **API Rate Limiter**: Uses `rate-limit-redis` to guard `/api` endpoints from automated scrapers or DDOS vectors.
+
+### **4. Security (RBAC) & Testing**
+- **Role-Based Routing**: Restricts administrative or premium features (e.g., [AI Trade Journal](file:///Users/adityasrivastava/Desktop/Projects/tikki-trades/app/(root)/journal/page.tsx)) to validated roles (`Premium User`, `Admin`) via custom session checking in [lib/rbac.ts](file:///Users/adityasrivastava/Desktop/Projects/tikki-trades/lib/rbac.ts).
+- **Centralized Formulas**: Math calculations for stock valuations, average cost, and percentage profit calculations are centralized in [lib/portfolio-math.ts](file:///Users/adityasrivastava/Desktop/Projects/tikki-trades/lib/portfolio-math.ts) and fully tested via [lib/portfolio-math.test.ts](file:///Users/adityasrivastava/Desktop/Projects/tikki-trades/lib/portfolio-math.test.ts).
 
 ---
 
 ## 🚀 Core Features & Implementation
 
-| Feature                              | Implementation Details                                                                 | Status |
-| ------------------------------------ | -------------------------------------------------------------------------------------- | ------ |
-| **🎨 Emerald Rebranding**             | 100% theme unification with custom CSS variables and Tailwind 4 tokens                | ✅      |
-| **🧠 AI Trade Coach**                | Direct-to-Gemini integration for unbiased trade journal reviews and thesis scoring     | ✅      |
-| **💬 Watchlist Assistant**           | Context-aware asset queries powered by Groq (Llama 3.3 70B) for instant market news    | ✅      |
-| **📬 Smart Alerts**                  | AI-personalized emails, price triggers, and daily market pulses via Inngest           | ✅      |
-| **💼 Portfolio Tracker**             | Live PnL analysis with real-time price updates via Finnhub/Yahoo Finance               | ✅      |
-| **📈 Technical Analytics**           | Real-time gauge indicators and technical analysis summaries on stock pages             | ✅      |
-| **🛠️ Framework Excellence**          | Next.js 16 (App Router) + React 19 for maximum performance and hydration stability    | ✅      |
+| Feature                              | Implementation Details | Status |
+| ------------------------------------ | ---------------------- | ------ |
+| **🎨 Theme Unification**             | Curated emerald-on-black branding with strict styling tokens. | ✅ |
+| **🧠 AI Trade Coach**                | Direct-to-Gemini (Flash) journal analyzer with behavioral bias checks. | ✅ |
+| **💬 Watchlist Assistant**           | Fast chat queries with Groq (Llama 3.3 70B) utilizing Redis caching. | ✅ |
+| **📬 Smart Alerts**                  | Personal onboarding, daily news pulse, and price sentinel crons via Inngest v4. | ✅ |
+| **💼 Portfolio Tracker**             | Live portfolio calculations using centralized math and cached price quotes. | ✅ |
+| **📈 WebSocket Streaming**           | Client-server real-time updates for active alerts and data streams via Socket.io. | ✅ |
+| **🔐 Role-Based Access Control**     | Secure access rules mapping Users, Premium Users, and Admins to premium resources. | ✅ |
+| **🛠️ Framework Excellence**          | Next.js 16, React 19, Tailwind CSS 4, and Pino HTTP logger integration. | ✅ |
 
 ---
 
 ## 🛠️ Tech Stack
 
-- **Framework**: [Next.js 16](https://nextjs.org/) (App Router)
-- **Runtime**: [React 19](https://react.dev/) (Server Components & Actions)
-- **Styling**: [Tailwind CSS 4](https://tailwindcss.com/) (Modern JIT Engine)
+- **Framework**: [Next.js 16](https://nextjs.org/) (App Router & Server Actions)
+- **Runtime**: [React 19](https://react.dev/)
+- **Styling**: [Tailwind CSS 4](https://tailwindcss.com/)
 - **Animations**: [Framer Motion](https://www.framer.com/motion/)
 - **AI Engines**: [Gemini 2.5 Flash](https://deepmind.google/technologies/gemini/), [Groq (Llama 3.3 70B)](https://groq.com/)
-- **Market Data**: [Finnhub API](https://finnhub.io/), [Yahoo Finance](https://github.com/gadicc/node-yahoo-finance2)
-- **Database**: [MongoDB](https://www.mongodb.com/) with [Mongoose](https://mongoosejs.com/)
-- **Auth**: [Better-Auth](https://www.better-auth.com/) (Secure DB Sessions)
-- **Orchestration**: [Inngest](https://www.inngest.com/) (Serverless Queues & Crons)
+- **Sockets**: [Socket.io](https://socket.io/) (Real-time bidirectional communication)
+- **Caching & Rate Limiting**: [Redis](https://redis.io/) via `ioredis` & `rate-limit-redis`
+- **Telemetry**: [Sentry APM](https://sentry.io/) (Error reporting and replay analysis)
+- **Database**: [MongoDB](https://www.mongodb.com/) via `mongoose`
+- **Auth**: [Better-Auth](https://www.better-auth.com/)
+- **Orchestration**: [Inngest v4](https://www.inngest.com/)
 
 ---
 
@@ -135,27 +159,35 @@ graph LR
     style C fill:#064e3b,stroke:#10b981,color:#fff
 ```
 
-### 2. Intelligent Mail Alerts (Inngest & Nodemailer)
-The "Heartbeat" of the platform is an event-driven automation engine:
-- **Personalized Onboarding**: Automatically triggers a welcome email where Gemini introduces the user to the terminal based on their specific goals.
-- **Daily Market Pulse**: Scheduled every day at 12:00 PM UTC to send AI-summarized news for all symbols in a user's watchlist.
-- **Price Sentinel**: A 15-minute cron job that monitors market prices against user-defined targets, triggering immediate email and in-app notifications.
+### 2. Custom Node.js Server & WebSockets
+Instead of running Next.js as a stand-alone server, we bootstrap a custom Express server. This allows us to load a persistent, unified Socket.io WebSocket server, rate-limit API calls at the routing layer, and wire up Pino logs:
+- **Client Subscription**: When a user opens a stock page, the client [SocketProvider](file:///Users/adityasrivastava/Desktop/Projects/tikki-trades/components/providers/SocketProvider.tsx) connects and joins a socket room for that symbol (`stock:AAPL`).
+- **Alert Dispatch**: Once Inngest triggers a price alert, the custom server grabs the socket reference (`global.io`) and emits `alert:triggered` directly to the active user's room (`portfolio:${userId}`).
 
-### 3. Framer Motion Orchestration
-Authentication and Stock pages use staggered animation variants to guide the user's eye:
-- **Title**: `y: -20, opacity: 0` → `y: 0, opacity: 1`
-- **Inputs**: Delayed by `0.1s` intervals
-- **CTA Button**: Scale effect on hover, delayed by `0.3s`
-
-### 4. AI Sidebar Interaction (Groq & Llama 3.3)
-The "Watchlist Assistant" leverages **Groq's Llama 3.3 70B** model via its high-performance OpenAI-compatible endpoint. It provides near-instantaneous analysis of watchlist data, using a `useRef` based auto-scroll hook to ensure the conversation remains fluid:
-```javascript
-useEffect(() => {
-  if (scrollRef.current) {
-    scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-  }
-}, [messages]);
+### 3. Redis Intelligence Caching
+Every financial query (Finnhub API quotes, historical metrics, company summaries) is wrapped in our caching system. The cached results are stored in Redis:
+```typescript
+// Example from lib/redis/index.ts
+export async function fetchWithCache<T>(
+  key: string,
+  fetchFn: () => Promise<T>,
+  ttlSeconds: number = 300
+): Promise<T>;
 ```
+- **Market Data TTL**: Stock quotes are cached for `30 seconds` to ensure up-to-date pricing while protecting API limits. General company info and fundamentals are cached for `24 hours`.
+- **Groq Cache**: User queries to the Watchlist Assistant are cached using a composite MD5 hash of the chat history and query, preventing repetitive model inference calls.
+
+### 4. Background Automation (Inngest v4)
+Background workflows are orchestrated inside [lib/inngest/functions.ts](file:///Users/adityasrivastava/Desktop/Projects/tikki-trades/lib/inngest/functions.ts):
+- **Personalized Onboarding**: Triggers when a user signs up. Generates a custom welcome message using Gemini 2.5 Flash Lite (`gemini-2.5-flash-lite`) and delivers it via Nodemailer.
+- **Daily Market Pulse**: Triggers every day at 12:00 PM UTC (`0 12 * * *`). It fetches recent news articles for all watchlist tickers, compiles them, summarizes using Gemini, and sends out emails (uses a 60-second sleep interval per user to honor free-tier Gemini API rate limits).
+- **Price Sentinel**: Runs every 15 minutes (`*/15 * * * *`). Checks active DB alerts against current quotes. When triggered, it broadcasts a WebSocket notification and sends a detailed alert email.
+
+### 5. Sentry Telemetry
+Instrumentation is set up for client-side pages, edge routing, and node server endpoints using the following configs:
+- [sentry.client.config.ts](file:///Users/adityasrivastava/Desktop/Projects/tikki-trades/sentry.client.config.ts): Initializes Sentry with Session Replays (masking text/media for user privacy).
+- [sentry.server.config.ts](file:///Users/adityasrivastava/Desktop/Projects/tikki-trades/sentry.server.config.ts): Catches backend errors during Server Action calculations and database transactions.
+- [sentry.edge.config.ts](file:///Users/adityasrivastava/Desktop/Projects/tikki-trades/sentry.edge.config.ts): Captures middleware and edge-based routing runtime exceptions.
 
 ---
 
@@ -175,76 +207,83 @@ useEffect(() => {
 
 ---
 
-## 📦 Installation
+## 📦 Installation & Deployment
 
-1. **Clone & Install**
+### 1. Run via Docker Compose (Recommended)
+Tikki Trades provides a complete multi-container Docker compose configuration that boots Next.js, MongoDB, and Redis.
+
+**Requirements**: Docker Desktop installed.
+
+```bash
+# Clone the repository
+git clone https://github.com/techieadi4703/tikki-trades.git
+cd tikki-trades
+
+# Build and launch all services in detached mode
+docker compose up -d --build
+```
+This automatically runs health checks for MongoDB and Redis before deploying the web terminal container.
+
+### 2. Manual Development Setup
+
+1. **Install Dependencies**
    ```bash
-   git clone https://github.com/techieadi4703/tikki-trades.git
-   cd tikki-trades
    npm install
    ```
 
 2. **Configure Environment**
-   Create a `.env.local` file and add the following keys:
+   Create a `.env` or `.env.local` file in the root directory:
    ```bash
-   NEXT_PUBLIC_FINNHUB_API_KEY=your_key
-   GEMINI_API_KEY=your_key
-   GROQ_API_KEY=your_key
-   MONGODB_URI=your_uri
-   BETTER_AUTH_SECRET=your_secret
+   # Server Connection Settings
+   PORT=3000
+   NEXT_PUBLIC_SITE_URL=http://localhost:3000
+   LOG_LEVEL=info
+   
+   # Database & Cache
+   MONGODB_URI=mongodb://localhost:27017/tikki-trades
+   REDIS_URL=redis://localhost:6379
+   RATE_LIMIT_MAX=100
+   
+   # Authentication
+   BETTER_AUTH_SECRET=your_better_auth_secret_key
    BETTER_AUTH_URL=http://localhost:3000
-   NODEMAILER_EMAIL=your_email
-   NODEMAILER_PASSWORD=your_password
+   
+   # External APIs
+   NEXT_PUBLIC_FINNHUB_API_KEY=your_finnhub_public_key
+   FINNHUB_API_KEY=your_finnhub_secret_key
+   GEMINI_API_KEY=your_gemini_api_key
+   GROQ_API_KEY=your_groq_api_key
+   
+   # Nodemailer SMTP Configuration
+   NODEMAILER_EMAIL=your_email@gmail.com
+   NODEMAILER_PASSWORD=your_app_specific_password
+   
+   # Telemetry (Optional)
+   NEXT_PUBLIC_SENTRY_DSN=your_sentry_dsn_url
    ```
 
-3. **Launch**
+3. **Run Unit Tests**
+   We verify position math and alert condition logic using **Vitest**:
+   ```bash
+   npm run test
+   ```
+
+4. **Launch Dev Server**
    ```bash
    npm run dev
    ```
-   Platform available at: `http://localhost:3000`
+   The terminal will be accessible at: `http://localhost:3000`
 
 ---
 
-## ⚙️ Technical Deep Dive
+## ⚙️ CI/CD Integration
 
-### **1. Identity & Security (Better-Auth)**
-Tikki Trades uses **Better-Auth** for a secure, database-backed authentication system. It handles:
-- **Session Management**: Persistent, secure sessions across browser restarts.
-- **Account Security**: Encrypted password hashing and protected API routes.
-- **Lifecycle Events**: Hooks into the signup process to trigger onboarding workflows.
-
-### **2. Background Orchestration (Inngest)**
-The platform's "brain" for asynchronous tasks is **Inngest**, which handles:
-- **Daily Market Summary**: A scheduled job that fetches personalized news for each user at 12:00 PM UTC.
-- **Onboarding Intelligence**: Event-driven emails triggered when a new user signs up, utilizing **Gemini AI** to personalize the welcome message based on the user's investment goals.
-- **Reliability**: Automatic retries and event-driven architecture ensure no data is lost during network blips.
-
-### **3. Market Data & Portfolio (Finnhub & Yahoo Finance)**
-The platform uses a hybrid approach to ensure reliable, high-fidelity data:
-- **Finnhub**: Provides the primary news stream, ticker sentiment, and real-time quote hooks.
-- **Yahoo Finance**: Integrated via `node-yahoo-finance2` for robust historical data and deep asset profiling.
-- **Portfolio Persistence**: User holdings are managed through a **Mongoose** schema in MongoDB, with real-time unrealized PnL calculation on the server.
-
-### **4. AI Trade Coach (Gemini 2.5 Flash)**
-The "Journaling" engine utilizes **Gemini 2.5 Flash** to provide objective feedback on user trades:
-- **Bias Detection**: Automatically identifies common emotional pitfalls like FOMO or Revenge Trading.
-- **Thesis Scoring**: Scores the strength of the user's investment logic on a scale of 1-10.
-- **Risk Mitigation**: Highlights potential risks the user might have ignored based on market context.
-
-### **5. Interactive Analytics (TradingView)**
-We utilize the high-performance **TradingView Widget Ecosystem** for:
-- **Advanced Charting**: Professional-grade candle and baseline charts.
-- **Market Heatmaps**: Sector-specific visualizations of market cap and daily changes.
-- **Technical Gauges**: Real-time technical analysis indicators (Oscillators, Moving Averages) for "Buy/Sell" sentiment.
-- **Fundamentals**: Direct integration of company financial summaries and balance sheet data.
-
----
-
-## 💡 Business Impact
-
-- 🚀 **First Impression**: Premium staggered animations and Geist typography increase perceived platform quality.
-- ⚙️ **Efficiency**: Viewport-locked dashboards and Tailwind 4's P3 color engine allow for high-focus data scanning.
-- 🧠 **Psychological Edge**: AI coaching provides users with a layer of objective feedback to improve emotional resilience.
+We configure automated quality checks via GitHub Actions in [.github/workflows/ci.yml](file:///Users/adityasrivastava/Desktop/Projects/tikki-trades/.github/workflows/ci.yml). For every pull request or push to the `main` branch, the workflow:
+1. Provisions an Ubuntu virtual environment with Node.js 20.
+2. Installs dependencies using `npm ci`.
+3. Runs the ESLint checker via `npm run lint`.
+4. Executes the Vitest unit tests via `npm run test`.
+5. Performs a dry production build using `npm run build` with mocked environment constants.
 
 ---
 
